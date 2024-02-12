@@ -276,6 +276,10 @@ async def offer(request):
 
             # await recorder.stop()       # not used - this is MediaBlackHole
 
+
+    pc.addTrack(VideoStreamTrack())
+ 
+
     # logger.info("before setRemoteDescription")
     # handle offer
     await pc.setRemoteDescription(offer)
@@ -283,8 +287,6 @@ async def offer(request):
 
     # logger.info("manually adding VideoStreamTrack")
 
-    pc.addTrack(VideoStreamTrack())
- 
     # send answer
     answer = await pc.createAnswer()
     await pc.setLocalDescription(answer)
