@@ -1,0 +1,12 @@
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
+# pywebrtc - Installs/updates needed to get aiortc to work
+RUN echo "Installing for aiortc, one upgrade, others required for aiortc"
+RUN PATH=$PATH:"/home/admin/.local/bin"
+RUN pip install pyopenssl --upgrade
+RUN pip install google-crc32c pyee pylibsrtp opencv-python natsort
+RUN pip install aiohttp aiortc
+
+RUN echo "DONE with pywebrtc extension"
+
