@@ -6,7 +6,7 @@ The use case is for teleoperation of a ROS2 robot, providing:
 - efficient transport using WebRTC - both video and data
 - generally targeted at the NVidia stack, but not required.
 
-![Tele Op Screen shots](iamges/TeleOpScreenshots.png "Tele Op Screen shots")
+![TeloOpScreenshots](https://github.com/pgaston/teleopros2/assets/3617755/0f7b2586-aba4-4f4a-a859-2769d794dad7)
 
 This is based on [aiortc](https://github.com/aiortc/aiortc); [jetbot-ros2](https://github.com/jdgalviss/jetbot-ros2) for inspiration; and with special consideration to [webrtc_ros](https://github.com/RobotWebTools/webrtc_ros) (which I couldn't get to work) from 'Robot Web Tools', and others.
 
