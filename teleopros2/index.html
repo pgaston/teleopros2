@@ -34,7 +34,9 @@
 
       /* this was tweaked extensively for mobile - have at it! */
       video{
-        width:90%;      
+        /* width: 640px;
+        height: 480px; */
+        /* width:100vh;       */
         height:96vh;
         max-width:640px;
         max-height: 480px;
@@ -102,11 +104,16 @@
         </div>  
       </div>  
 
-      <!-- right side of page - video -->
-      <div class="col px-0 mx-0">
-        <div id="media" class="px-0 mx-0">
-          <video id="video" autoplay="true" playsinline="true"></video>
+      <!-- right side of page - video  class="px-0 mx-0" -->
+      <div class="col">
+        <!-- 640:480 - 4:3 aspect ratio -->
+        <div id="media" class="embed-responsive embed-responsive-4by3">
+          <video id="video" autoplay="true" playsinline="true" class="embed-responsive-item"></video>
         </div>
+
+        <!-- <div id="media">
+          <video id="video" autoplay="true" playsinline="true"></video>
+        </div> -->
       </div> 
     </div>
   </div>  
@@ -458,6 +465,7 @@
   function showValues() {
     var x = vertSlider.getValue();
     var y = horSlider.getValue();
+
     document.getElementById('linX').innerHTML = x;
     document.getElementById('angY').innerHTML = y;
 
@@ -468,7 +476,10 @@
   function sendTwist() {
     var x = vertSlider.getValue();
     var y = horSlider.getValue();
-    
+
+    // hah - y needs to be inverted!
+    y = -y
+
     var linX = x / maxSlider;   // convert to -1 to 1
     var angY = y / maxSlider;
 

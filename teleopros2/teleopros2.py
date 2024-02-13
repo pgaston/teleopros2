@@ -391,9 +391,10 @@ class WebRTCPubSub(Node):
         super().__init__('pywebrtc')
 
         # parameters
-        # Isaac SIM - "/front/stereo_camera/left/rgb"
-        # Realsense - "/camera/color/image_raw"
-        self.declare_parameter('image-topic', "/camera/color/image_raw")
+        kRealSenseIamgeTopic = "/camera/color/image_raw"
+        kIsaacSimImageTopic = "/front/stereo_camera/left/rgb"       # not publishing?
+        kIsaacSimImageTopic = "/image_raw"
+        self.declare_parameter('image-topic', kIsaacSimImageTopic)
         self.declare_parameter('ssl', True)
         self.declare_parameter('cert-file', 'certs/server.cert')
         self.declare_parameter('key-file', 'certs/server.key')
@@ -415,6 +416,7 @@ class WebRTCPubSub(Node):
         self.bridge = CvBridge()
 
         # subscribers
+        logger.info("listening for images on: %s" % (argsimagetopic))
         self.imageSubscription = self.create_subscription(Image,argsimagetopic,self.listener_image_callback,10)
         self.imageSubscription  # prevent unused variable warning
 
@@ -486,6 +488,7 @@ def main():
     Ros2PubSubNode = WebRTCPubSub()     # do this sequentially, as it captures the parameters
     t = threading.Thread(target=runROSNode)
     t.start()
+
 
     global VIDEO_PTIME
     VIDEO_PTIME = 1 / argsfps           # use parameterized fps
