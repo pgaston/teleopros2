@@ -36,7 +36,7 @@ cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
   ./scripts/run_dev.sh
 
 source install/setup.bash
-ros2 run ros2webrtc ros2webrtc
+ros2 run teleopros2 teleopros2
 
 *then realsense in another terminal window*
 source install/setup.bash

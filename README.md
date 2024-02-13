@@ -1,18 +1,18 @@
 # TeleOp on ROS2 using WebRTC 
 ## for ROS2 alone, or via the NVidia docker setup for Jetson (Orin) Nano/x86
 
-The use case is for either video monitoring or teleop of a ROS2 robot.    This provides:
-- capture of ROS2 image messages for transport to the browser
-- data channel to/from browser for teleop and other purposes
-- use of WebRTC for efficiency and generalization for use of internet
-- desktop in a browser, either desktop or mobile - including tilt control when using mobile.
-- specific instructions on how to use with the NVidia docker environment, including for Jetson (Orin).
+The use case is for teleoperation of a ROS2 robot, providing:
+- teleop desktop - ready for further customization - it already provides tilt control on mobile devices
+- efficient transport using WebRTC - both video and data
+- generally targeted at the NVidia stack, but not required.
 
-This is based on [aiortc](https://github.com/aiortc/aiortc); [jetbot-ros2](https://github.com/jdgalviss/jetbot-ros2) for inspiration; and with special consideration to [webrtc_ros](https://github.com/RobotWebTools/webrtc_ros) (which I couldn't get to work) from 'Robot Web Tools'.
+![Tele Op Screen shots](iamges/TeleOpScreenshots.png "Tele Op Screen shots")
+
+This is based on [aiortc](https://github.com/aiortc/aiortc); [jetbot-ros2](https://github.com/jdgalviss/jetbot-ros2) for inspiration; and with special consideration to [webrtc_ros](https://github.com/RobotWebTools/webrtc_ros) (which I couldn't get to work) from 'Robot Web Tools', and others.
 
 ## Overview
 
-Please see the Medium article for a richer discussion.   Basically this leverages [aiortc](https://github.com/aiortc/aiortc) within the ROS2 environment.
+Please see the Medium article for a richer discussion.   Basically this creates a browser based desktop leveraging [aiortc](https://github.com/aiortc/aiortc) within the ROS2 environment.
 
 ## Installation
 
@@ -31,7 +31,7 @@ to the folder
 ```
 ${ISAAC_ROS_WS}/src/isaac_ros_common/scripts
 ```
-after this, run_dev.sh should work.
+after this, run_dev.sh should work.   This is how to run the 'standard' NVidia docker environment, with my additions, per #2 above.
 ```
 cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
   ./scripts/run_dev.sh
@@ -81,10 +81,12 @@ This Isaac sim publishes the image on
 ```/front/stereo_camera/left/rgb```
 so you may need to change the pywebrtc.py code to subscribe to that (okay, this can be fixed so it's easier...)
 
-to move the robot, a simple node is 'teleop_twist_keyboard'.
+to move the robot for testing purposes, a simple node is 'teleop_twist_keyboard'.
 ```
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
+I also have a customization of the 'simple room' with a jetbot.   This publishes images and accepts robot movement commands.
+
 
 
 ## Useful links
