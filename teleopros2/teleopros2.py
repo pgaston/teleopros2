@@ -492,7 +492,7 @@ def dataChannelReceive(msg):
         # Vector3  linear  -> x,y,z
         # Vector3  angular -> rx,ry,rz (rotation about that axis - z is yaw)
         jTwist = jmsg['twist']
-        logger.info("twist: x=%f, rz=%f" % (jTwist['linear']['x'],jTwist['angular']['z']))
+        logger.info("twist: x=%.2f, rz=%.2f" % (jTwist['linear']['x'],jTwist['angular']['z']))
         if Ros2PubSubNode is not None:      # should always be valid
             Ros2PubSubNode.publishTwist(jTwist)
         # and send to ROS...

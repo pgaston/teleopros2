@@ -240,7 +240,7 @@ function start() {
     // remoteStream = new MediaStream();
 
 
-    negotiate();
+    // negotiate();
 
     // if (constraints.audio || constraints.video) {
     //     // if (constraints.video) {
@@ -286,7 +286,7 @@ function stop() {
     // close peer connection
     setTimeout(function() {
         pc.close();
-        btnStart.style.display = 'block';
+        // btnStart.style.display = 'block';
     }, 500);
 }
 

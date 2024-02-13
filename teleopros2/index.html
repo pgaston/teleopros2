@@ -30,6 +30,21 @@
       #sldHor .slider-selection {
         background: #BABABA;
       }
+
+      /*Maintain aspect ratio*/
+      .embed-responsive-16by9::before{
+        padding-top:56%; /*Insert correct number here*/
+      }
+      video{
+        width:90%;      
+        height:98vh;
+        /* max-width:100%; */
+        /* max-height: 98% */
+      }
+
+
+      /* from SO - https://stackoverflow.com/questions/36949747/make-video-fit-100-with-any-screen-resolution */
+      
     </style>
 
 </head>
@@ -51,274 +66,290 @@
         </div>
       </nav> -->
 
-      <!-- only shown when connected -->
-      <div id="stateConnected" class="container-fluid">
-        <!--  style="display:none;  -->
-        <div class="row mt-2 flex-nowrap">
-          <!-- left side of page  col-md-3 col-lg-2 -->
-          <div class="col px-0 mx-0">
+  <!-- only shown when connected -->
+  <div id="stateConnected" class="container-fluid pt-0 mt-0">
+    <!--  style="display:none;  -->
+    <div class="row mt-2 flex-nowrap pt-0 mt-0">
+      <!-- left side of page  col-md-3 col-lg-2 -->
+      <div class="col-sm col-md-3 col-lg-2 px-0 mx-0 pl-1">
 
-            <!-- horiz and vert sliders -->
-            <div class="row">
-              <!-- <div class="col-1"></div> -->
-              <div class="col">
-                Power:
-                <span id="linX">0</span>
-              </div>
-            </div>  
-            <div class="row">
-              <div class="col mx-auto text-center">
-                <input id="sldVert" data-slider-id='vertSlider' type="text" data-slider-min="-100" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
-              </div>  
-            </div>  
-            <div class="row">
-              <div class="col">
-                Turn:
-                <span id="angY">0</span>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col mx-auto text-center">
-                <input id="sldHor" data-slider-id='horSlider' type="text" data-slider-min="-100" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
-              </div>  
-            </div>  
-
-            <!-- STOP ROBOT, Tilt buttons -->
-            <div class="row mt-2">
-              <div class="col mx-auto text-center ">
-                <button id="btnStopRobot" onclick="stopRobot()" type="button" class="btn btn-primary" data-bs-toggle="button">Stop Robot</button>
-              </div>  
-            </div>  
-
-            <div id="tiltAvailable"  class="row my-3">
-              <div class="col mx-auto text-center ">
-                <!-- style="display: none;" -->
-                <button id="btnDoTilt" onclick="doTilt()" type="button" class="btn btn-info" data-bs-toggle="button" >Use Tilt</button>
-              </div>  
-            </div>  
-
-            <div id="tiltAvailable"  class="row my-4">
-              <div class="col mx-auto text-center ">
-                <hr />
-                <button id="btnStop" onclick="fBtnStop();" class="btn btn-outline-info"  type="button"  data-bs-toggle="button" >
-                  Disconnect
-                </button>
-              </div>  
-            </div>  
-
+        <!-- horiz and vert sliders -->
+        <div class="row">
+          <!-- <div class="col-1"></div> -->
+          <div class="col">
+            Power:
+            <span id="linX">0</span>
+          </div>
+        </div>  
+        <div class="row">
+          <div class="col mx-auto text-center">
+            <input id="sldVert" data-slider-id='vertSlider' type="text" data-slider-min="-100" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
           </div>  
-
-          <!-- right side of page -->
-          <div class="col px-0 mx-0">
-            <div id="media" class="embed-responsive embed-responsive-16by9">
-              <video id="video" autoplay="true" playsinline="true" class="embed-responsive-item" style="background-color: gray;  border: black 1px solid;"></video>
-            </div>
-        <!-- <div class="container">
-              <div class="row">
-                <div class="col-xs-12">
-                  <div class="embed-responsive embed-responsive-16by9">
-                    <video id="video" autoplay="true" playsinline="true" class="embed-responsive-item" style="background-color: gray;  border: black 1px solid;"></video>
-                  </div>
-                </div>
-              </div>
-            </div> -->
-
-
-            <!-- <div class="vidsizer">
-              <div id="media" class="embed-responsive embed-responsive-16by9">
-                  <video id="video" autoplay="true" playsinline="true" class="embed-responsive-item" style="background-color: gray;  border: black 1px solid;"></video>
-              </div>
-            </div> -->
-          </div> 
-        </div>
-      </div>  
-      
-      <div class="container-fluid">
-      <!-- Always show - connected or not state...  -->
-      <div class="row">
-        <div class="col my-1 mx-auto text-center">
-          <!-- one or the other -->
-          <button id="btnStart" onclick="fBtnStart();" class="btn btn-outline-success" type="button"  data-bs-toggle="button">
-            Connect
-          </button>
-        </div>
-      </div>
-
-      <div id="tiltNotAvailable" class="row" style="display: none;">
-        <div class="col">
-          <hr />
-          Control via tilt is not available as this is not a supported mobile device
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col">
-          <!-- displayed in accordians -->
-          <div class="accordion accordion-flush my-2" id="accordionFlushExample">
-            <div id="accSettings" class="accordion-item">
-              <h2 class="accordion-header">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseZero" aria-expanded="false" aria-controls="flush-collapseOne">
-                  Settings
-                </button>
-              </h2>
-              <div id="flush-collapseZero" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-                <div class="accordion-body">
-                  <!--
-                    <div class="option">
-                        <input id="use-datachannel" checked="checked" type="checkbox"/>
-                        <label for="use-datachannel">Use datachannel</label>
-                        <select id="datachannel-parameters">
-                            <option value='{"ordered": true}'>Ordered, reliable</option>
-                            <option value='{"ordered": false, "maxRetransmits": 0}'>Unordered, no retransmissions</option>
-                            <option value='{"ordered": false, "maxPacketLifetime": 500}'>Unordered, 500ms lifetime</option>
-                        </select>
-                    </div>
-                    <div class="option">
-                        <input id="use-audio" type="checkbox"/> 
-                        <label for="use-audio">Use audio</label>
-                        <select id="audio-codec" style="display: none">
-                            <option value="default" selected>Default codecs</option>
-                            <option value="opus/48000/2">Opus</option>
-                            <option value="PCMU/8000">PCMU</option>
-                            <option value="PCMA/8000">PCMA</option>
-                        </select>
-                    </div>
-                    <div class="option">
-                        <input id="use-video" type="checkbox" checked/>
-                        <label for="use-video">Use video</label>
-                        <select id="video-resolution" style="display: block">
-                            <option value="">Default resolution</option>
-                            <option value="320x240">320x240</option>
-                            <option value="640x480" selected>640x480</option>
-                            <option value="960x540">960x540</option>
-                            <option value="1280x720">1280x720</option>
-                        </select>
-                        <select id="video-transform" style="display: none">
-                            <option value="none" selected>No transform</option>
-                            <option value="edges">Edge detection</option>
-                            <option value="cartoon">Cartoon effect</option>
-                            <option value="rotate">Rotate</option>
-                        </select>
-                        <select id="video-codec" style="display: none">
-                            <option value="default" selected>Default codecs</option>
-                            <option value="VP8/90000">VP8</option>
-                            <option value="H264/90000">H264</option>
-                        </select>
-                    </div>
-                    -->
-                    <div class="option">
-                        <input id="use-stun" type="checkbox"/>
-                        <label for="use-stun">Use STUN server</label>
-                    </div>
-                 </div>
-              </div>
-            </div>
-
-            <div id="accICELog" class="accordion-item">
-              <h2 class="accordion-header">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
-                  ICE Log
-                </button>
-              </h2>
-              <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
-                <div class="accordion-body">
-                    <p>
-                        ICE gathering state: <span id="ice-gathering-state"></span>
-                    </p>
-                    <p>
-                        ICE connection state: <span id="ice-connection-state"></span>
-                    </p>
-                    <p>
-                        Signaling state: <span id="signaling-state"></span>
-                    </p>
-                    <p>
-                        Data channel state: <span id="data-channel"></span>
-                    </p>
-                    <p>SDP Offer</p>
-                    <pre id="offer-sdp"></pre>
-                    <p>SDP Answer</p>
-                    <pre id="answer-sdp"></pre>
-                </div>  
-              </div>
+        </div>  
+        <div class="row">
+          <div class="col">
+            Turn:
+            <span id="angY">0</span>
           </div>
         </div>
-      </div>
+        <div class="row">
+          <div class="col mx-auto text-center">
+            <input id="sldHor" data-slider-id='horSlider' type="text" data-slider-min="-100" data-slider-max="100" data-slider-step="1" data-slider-value="0"/>
+          </div>  
+        </div>  
+
+        <!-- STOP ROBOT, Tilt buttons -->
+        <div class="row mt-2">
+          <div class="col mx-auto text-center ">
+            <button id="btnStopRobot" onclick="stopRobot()" type="button" class="btn btn-primary" data-bs-toggle="button">Stop Robot</button>
+          </div>  
+        </div>  
+
+        <div id="tiltAvailable"  class="row my-3">
+          <div class="col mx-auto text-center ">
+            <!-- style="display: none;" -->
+            <button id="btnDoTilt" onclick="doTilt()" type="button" class="btn btn-info" data-bs-toggle="button" >Use Tilt</button>
+          </div>  
+        </div>  
+
+        <div id="tiltAvailable"  class="row my-4">
+          <div class="col mx-auto text-center ">
+            <hr />
+            <button id="btnStop" onclick="fBtnStop();" class="btn btn-outline-info"  type="button"  data-bs-toggle="button" >
+              Disconnect
+            </button>
+          </div>  
+        </div>  
+
+      </div>  
+
+      <!-- right side of page - video -->
+      <div class="col px-0 mx-0">
+
+        <div id="media" class="px-0 mx-0">
+          <video id="video" autoplay="true" playsinline="true"></video>
+        </div>
+
+        <!-- <div id="media" class="embed-responsive embed-responsive-16by9 px-0 mx-0">
+          <video id="video" autoplay="true" playsinline="true" class="embed-responsive-item"></video>
+        </div> -->
+
+        <!-- style="background-color: gray;  border: black 1px solid;" -->
+        <!-- <div id="media" class="embed-responsive embed-responsive-16by9">
+          <video id="video" autoplay="true" playsinline="true" class="embed-responsive-item" 
+                  style="background-color: gray;  border: black 1px solid;"></video>
+        </div> -->
+
+
+
+        <!-- <div class="video-container">
+          <video id="video" autoplay="true" playsinline="true"></video>
+        </div> -->
+
+    <!-- <div class="container">
+          <div class="row">
+            <div class="col-xs-12">
+              <div class="embed-responsive embed-responsive-16by9">
+                <video id="video" autoplay="true" playsinline="true" class="embed-responsive-item" style="background-color: gray;  border: black 1px solid;"></video>
+              </div>
+            </div>
+          </div>
+        </div> -->
+
+
+        <!-- <div class="vidsizer">
+          <div id="media" class="embed-responsive embed-responsive-16by9">
+              <video id="video" autoplay="true" playsinline="true" class="embed-responsive-item" style="background-color: gray;  border: black 1px solid;"></video>
+          </div>
+        </div> -->
+      </div> 
     </div>
-  </div>
-
-
-  <!-- debug Tilting - normally not shown    style="display:none" -->
-  <div id="tiltAvailable2" class="container">
+  </div>  
+      
+  <div id="stateDisconnected" class="container-fluid">
+    <!-- Always show - connected or not state...  -->
     <div class="row">
-      <div class="col justify-content-center">
-        <br />
-        <h5>Tilt debug values</h5>
-        <br />
+      <div class="col my-1 mx-auto text-center">
+        <!-- one or the other -->
+        <button id="btnStart" onclick="fBtnStart();" class="btn btn-outline-success" type="button"  data-bs-toggle="button">
+          Connect
+        </button>
       </div>
     </div>
 
-    <div class="row mt-2">
-      <div class="col-1"></div>
-      <div class="col-1">
-        beta:
-      </div>
-      <div class="col-1">
-        <span id="txtTiltBeta">0.0</span>
-      </div>
-
-      <div class="col-1">
-        center:
-      </div>
-      <div class="col-1">
-        <span id="txtCenterBeta">0.0</span>
-      </div>
-
-      <div class="col-1">
-        output:
-      </div>
-      <div class="col-1">
-        <span id="txtOutputBeta">0.0</span>
-      </div>
-    </div>
-
-    <div class="row mt-2">
-      <div class="col-1"></div>
-      <div class="col-1">
-        gamma:
-      </div>
-      <div class="col-1">
-        <span id="txtTiltGamma">0.0</span>
-      </div>
-
-      <div class="col-1">
-        center:
-      </div>
-      <div class="col-1">
-        <span id="txtCenterGamma">0.0</span>
-      </div>
-
-      <div class="col-1">
-        output:
-      </div>
-      <div class="col-1">
-        <span id="txtOutputGamma">0.0</span>
-      </div>
-    </div>
-
-    <div class="row mt-2">
-      <div class="col-1"></div>
-      <div class="col-1">
-        cnt:
-      </div>
+    <div id="tiltNotAvailable" class="row" style="display: none;">
       <div class="col">
-        <span id="txtCnt">xxx</span>
+        <hr />
+        Control via tilt is not available as this is not a supported mobile device
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <!-- displayed in accordians -->
+        <div class="accordion accordion-flush my-2" id="accordionFlushExample">
+          <div id="accSettings" class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseZero" aria-expanded="false" aria-controls="flush-collapseOne">
+                Settings
+              </button>
+            </h2>
+            <div id="flush-collapseZero" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+              <div class="accordion-body">
+                <!--
+                  <div class="option">
+                      <input id="use-datachannel" checked="checked" type="checkbox"/>
+                      <label for="use-datachannel">Use datachannel</label>
+                      <select id="datachannel-parameters">
+                          <option value='{"ordered": true}'>Ordered, reliable</option>
+                          <option value='{"ordered": false, "maxRetransmits": 0}'>Unordered, no retransmissions</option>
+                          <option value='{"ordered": false, "maxPacketLifetime": 500}'>Unordered, 500ms lifetime</option>
+                      </select>
+                  </div>
+                  <div class="option">
+                      <input id="use-audio" type="checkbox"/> 
+                      <label for="use-audio">Use audio</label>
+                      <select id="audio-codec" style="display: none">
+                          <option value="default" selected>Default codecs</option>
+                          <option value="opus/48000/2">Opus</option>
+                          <option value="PCMU/8000">PCMU</option>
+                          <option value="PCMA/8000">PCMA</option>
+                      </select>
+                  </div>
+                  <div class="option">
+                      <input id="use-video" type="checkbox" checked/>
+                      <label for="use-video">Use video</label>
+                      <select id="video-resolution" style="display: block">
+                          <option value="">Default resolution</option>
+                          <option value="320x240">320x240</option>
+                          <option value="640x480" selected>640x480</option>
+                          <option value="960x540">960x540</option>
+                          <option value="1280x720">1280x720</option>
+                      </select>
+                      <select id="video-transform" style="display: none">
+                          <option value="none" selected>No transform</option>
+                          <option value="edges">Edge detection</option>
+                          <option value="cartoon">Cartoon effect</option>
+                          <option value="rotate">Rotate</option>
+                      </select>
+                      <select id="video-codec" style="display: none">
+                          <option value="default" selected>Default codecs</option>
+                          <option value="VP8/90000">VP8</option>
+                          <option value="H264/90000">H264</option>
+                      </select>
+                  </div>
+                  -->
+                  <div class="option">
+                      <input id="use-stun" type="checkbox"/>
+                      <label for="use-stun">Use STUN server</label>
+                  </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="accICELog" class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+                ICE Log
+              </button>
+            </h2>
+            <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+              <div class="accordion-body">
+                  <p>
+                      ICE gathering state: <span id="ice-gathering-state"></span>
+                  </p>
+                  <p>
+                      ICE connection state: <span id="ice-connection-state"></span>
+                  </p>
+                  <p>
+                      Signaling state: <span id="signaling-state"></span>
+                  </p>
+                  <p>
+                      Data channel state: <span id="data-channel"></span>
+                  </p>
+                  <p>SDP Offer</p>
+                  <pre id="offer-sdp"></pre>
+                  <p>SDP Answer</p>
+                  <pre id="answer-sdp"></pre>
+              </div>  
+            </div>
+        </div>
       </div>
     </div>
   </div>
+
+    <!-- debug Tilting - normally not shown    style="display:none" -->
+    <div id="tiltAvailable2" class="container d-none">
+      <div class="row">
+        <div class="col justify-content-center">
+          <br />
+          <h5>Tilt debug values</h5>
+          <br />
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col-1"></div>
+        <div class="col-1">
+          beta:
+        </div>
+        <div class="col-1">
+          <span id="txtTiltBeta">0.0</span>
+        </div>
+
+        <div class="col-1">
+          center:
+        </div>
+        <div class="col-1">
+          <span id="txtCenterBeta">0.0</span>
+        </div>
+
+        <div class="col-1">
+          output:
+        </div>
+        <div class="col-1">
+          <span id="txtOutputBeta">0.0</span>
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col-1"></div>
+        <div class="col-1">
+          gamma:
+        </div>
+        <div class="col-1">
+          <span id="txtTiltGamma">0.0</span>
+        </div>
+
+        <div class="col-1">
+          center:
+        </div>
+        <div class="col-1">
+          <span id="txtCenterGamma">0.0</span>
+        </div>
+
+        <div class="col-1">
+          output:
+        </div>
+        <div class="col-1">
+          <span id="txtOutputGamma">0.0</span>
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col-1"></div>
+        <div class="col-1">
+          cnt:
+        </div>
+        <div class="col">
+          <span id="txtCnt">xxx</span>
+        </div>
+      </div>
+    </div>
 
 
   <!-- viewport resolution - normally not shown -->
-  <div id="resolutions" class="container" style="display:none">
+  <!-- <div id="resolutions" class="container" style="display:none">
     <div class="row mt-2">
       <div class="col-2">
         screen height:
@@ -353,8 +384,9 @@
       <div class="col-2">
         <span id="txtWindowWidth">0.0</span>
       </div>
-    </div>  
-  </div>
+    </div>  -->
+
+  </div> 
   
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
@@ -387,6 +419,7 @@
     btnStart = document.getElementById('btnStart'),
     btnStop = document.getElementById('btnStop'),
     stateConnected = document.getElementById('stateConnected'),
+    stateDisconnected = document.getElementById('stateDisconnected'),
 
     tiltNotAvailable = document.getElementById('tiltNotAvailable'),
     tiltAvailable = document.getElementById('tiltAvailable'),
@@ -610,9 +643,10 @@
   }
 
   function showConnected(bConnected) {
-    btnStart.style.display = bConnected? "none" : "block";
+    // btnStart.style.display = bConnected? "none" : "block";
     // btnStop.style.display = bConnected? "block" : "none";
     stateConnected.style.display = bConnected? "inline-block" : "none";
+    stateDisconnected.style.display = bConnected? "none" : "inline-block";
 
     console.log("showConnected: " + bConnected);
   }
