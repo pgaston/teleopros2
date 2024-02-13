@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
     <meta name="description" content="">
     <meta name="author" content="Peter Gaston, other sources too numerous to mention">
-    <title>pyWebRTC</title>
+    <title>TeleOp ROS2 via WebRTC</title>
 
     <!-- bootstrap:   https://getbootstrap.com/
     example: https://getbootstrap.com/docs/5.3/examples/dashboard/# -->
@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/css/bootstrap-slider.min.css" integrity="sha512-3q8fi8M0VS+X/3n64Ndpp6Bit7oXSiyCnzmlx6IDBLGlY5euFySyJ46RUlqIVs0DPCGOypqP8IRk/EyPvU28mQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
+    <!-- just for that extra touch... -->
     <link rel="apple-touch-icon" href="favicons/apple-touch-icon.png" sizes="180x180">
     <link rel="icon" href="favicons/favicon-32x32.png" sizes="32x32" type="image/png">
     <link rel="icon" href="favicons/favicon-16x16.png" sizes="16x16" type="image/png">
@@ -31,40 +32,18 @@
         background: #BABABA;
       }
 
-      /*Maintain aspect ratio*/
-      .embed-responsive-16by9::before{
-        padding-top:56%; /*Insert correct number here*/
-      }
+      /* this was tweaked extensively for mobile - have at it! */
       video{
         width:90%;      
         height:96vh;
         max-width:640px;
         max-height: 480px;
       }
-
-
-      /* from SO - https://stackoverflow.com/questions/36949747/make-video-fit-100-with-any-screen-resolution */
-      
     </style>
 
 </head>
 <body>
-    <!-- <nav class="lg navbar navbar-dark bg-dark mb-4">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-              <img src="favicons/favicon-32x32.png" alt="Logo" width="30" height="24" class="d-inline-block align-text-top">
-              TeleOp on ROS2 using WebRTC
-            </a>
-            <button id="start" onclick="start()" class="btn btn-outline-success me-2" type="button"  data-bs-toggle="button">
-              Connect
-            </button>
-            <button id="stop" onclick="stop()" class="btn btn-outline-info me-2"  type="button"  data-bs-toggle="button" style="display: none" >
-              Disconnect
-            </button>
-            <span id="txtNavStatus" class="navbar-text">
-            </span>
-        </div>
-      </nav> -->
+  <!-- no navbar-->
 
   <!-- only shown when connected -->
   <div id="stateConnected" class="container-fluid pt-0 mt-0">
@@ -102,19 +81,20 @@
         <div class="row mt-2">
           <div class="col mx-auto text-center ">
             <button id="btnStopRobot" onclick="stopRobot()" type="button" class="btn btn-primary" data-bs-toggle="button">Stop Robot</button>
+            <br />
+            <hr />
           </div>  
         </div>  
 
         <div id="tiltAvailable"  class="row my-3">
           <div class="col mx-auto text-center ">
-            <!-- style="display: none;" -->
             <button id="btnDoTilt" onclick="doTilt()" type="button" class="btn btn-info" data-bs-toggle="button" >Use Tilt</button>
           </div>  
         </div>  
 
-        <div id="tiltAvailable"  class="row my-4">
+        <div class="row my-4">
           <div class="col mx-auto text-center ">
-            <hr />
+            <br />
             <button id="btnStop" onclick="fBtnStop();" class="btn btn-outline-info"  type="button"  data-bs-toggle="button" >
               Disconnect
             </button>
@@ -125,43 +105,9 @@
 
       <!-- right side of page - video -->
       <div class="col px-0 mx-0">
-
         <div id="media" class="px-0 mx-0">
           <video id="video" autoplay="true" playsinline="true"></video>
         </div>
-
-        <!-- <div id="media" class="embed-responsive embed-responsive-16by9 px-0 mx-0">
-          <video id="video" autoplay="true" playsinline="true" class="embed-responsive-item"></video>
-        </div> -->
-
-        <!-- style="background-color: gray;  border: black 1px solid;" -->
-        <!-- <div id="media" class="embed-responsive embed-responsive-16by9">
-          <video id="video" autoplay="true" playsinline="true" class="embed-responsive-item" 
-                  style="background-color: gray;  border: black 1px solid;"></video>
-        </div> -->
-
-
-
-        <!-- <div class="video-container">
-          <video id="video" autoplay="true" playsinline="true"></video>
-        </div> -->
-
-    <!-- <div class="container">
-          <div class="row">
-            <div class="col-xs-12">
-              <div class="embed-responsive embed-responsive-16by9">
-                <video id="video" autoplay="true" playsinline="true" class="embed-responsive-item" style="background-color: gray;  border: black 1px solid;"></video>
-              </div>
-            </div>
-          </div>
-        </div> -->
-
-
-        <!-- <div class="vidsizer">
-          <div id="media" class="embed-responsive embed-responsive-16by9">
-              <video id="video" autoplay="true" playsinline="true" class="embed-responsive-item" style="background-color: gray;  border: black 1px solid;"></video>
-          </div>
-        </div> -->
       </div> 
     </div>
   </div>  
@@ -196,52 +142,12 @@
             </h2>
             <div id="flush-collapseZero" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
               <div class="accordion-body">
-                <!--
                   <div class="option">
-                      <input id="use-datachannel" checked="checked" type="checkbox"/>
-                      <label for="use-datachannel">Use datachannel</label>
-                      <select id="datachannel-parameters">
-                          <option value='{"ordered": true}'>Ordered, reliable</option>
-                          <option value='{"ordered": false, "maxRetransmits": 0}'>Unordered, no retransmissions</option>
-                          <option value='{"ordered": false, "maxPacketLifetime": 500}'>Unordered, 500ms lifetime</option>
-                      </select>
-                  </div>
-                  <div class="option">
-                      <input id="use-audio" type="checkbox"/> 
-                      <label for="use-audio">Use audio</label>
-                      <select id="audio-codec" style="display: none">
-                          <option value="default" selected>Default codecs</option>
-                          <option value="opus/48000/2">Opus</option>
-                          <option value="PCMU/8000">PCMU</option>
-                          <option value="PCMA/8000">PCMA</option>
-                      </select>
-                  </div>
-                  <div class="option">
-                      <input id="use-video" type="checkbox" checked/>
-                      <label for="use-video">Use video</label>
-                      <select id="video-resolution" style="display: block">
-                          <option value="">Default resolution</option>
-                          <option value="320x240">320x240</option>
-                          <option value="640x480" selected>640x480</option>
-                          <option value="960x540">960x540</option>
-                          <option value="1280x720">1280x720</option>
-                      </select>
-                      <select id="video-transform" style="display: none">
-                          <option value="none" selected>No transform</option>
-                          <option value="edges">Edge detection</option>
-                          <option value="cartoon">Cartoon effect</option>
-                          <option value="rotate">Rotate</option>
-                      </select>
-                      <select id="video-codec" style="display: none">
-                          <option value="default" selected>Default codecs</option>
-                          <option value="VP8/90000">VP8</option>
-                          <option value="H264/90000">H264</option>
-                      </select>
-                  </div>
-                  -->
-                  <div class="option">
-                      <input id="use-stun" type="checkbox"/>
-                      <label for="use-stun">Use STUN server</label>
+                    <!-- Session Traversal Utilities for NAT (STUN) is a protocol to discover 
+                    your public address and determine any restrictions in your router 
+                    that would prevent a direct connection with a peer. -->
+                    <input id="use-stun" type="checkbox"/>
+                    <label for="use-stun">Use STUN server</label>
                   </div>
               </div>
             </div>
@@ -278,78 +184,77 @@
     </div>
   </div>
 
-    <!-- debug Tilting - normally not shown    style="display:none" -->
-    <div id="tiltAvailable2" class="container d-none">
-      <div class="row">
-        <div class="col justify-content-center">
-          <br />
-          <h5>Tilt debug values</h5>
-          <br />
-        </div>
-      </div>
-
-      <div class="row mt-2">
-        <div class="col-1"></div>
-        <div class="col-1">
-          beta:
-        </div>
-        <div class="col-1">
-          <span id="txtTiltBeta">0.0</span>
-        </div>
-
-        <div class="col-1">
-          center:
-        </div>
-        <div class="col-1">
-          <span id="txtCenterBeta">0.0</span>
-        </div>
-
-        <div class="col-1">
-          output:
-        </div>
-        <div class="col-1">
-          <span id="txtOutputBeta">0.0</span>
-        </div>
-      </div>
-
-      <div class="row mt-2">
-        <div class="col-1"></div>
-        <div class="col-1">
-          gamma:
-        </div>
-        <div class="col-1">
-          <span id="txtTiltGamma">0.0</span>
-        </div>
-
-        <div class="col-1">
-          center:
-        </div>
-        <div class="col-1">
-          <span id="txtCenterGamma">0.0</span>
-        </div>
-
-        <div class="col-1">
-          output:
-        </div>
-        <div class="col-1">
-          <span id="txtOutputGamma">0.0</span>
-        </div>
-      </div>
-
-      <div class="row mt-2">
-        <div class="col-1"></div>
-        <div class="col-1">
-          cnt:
-        </div>
-        <div class="col">
-          <span id="txtCnt">xxx</span>
-        </div>
+  <!-- debug Tilting - normally not shown -->
+  <div id="tiltAvailable2" class="container d-none">
+    <div class="row">
+      <div class="col justify-content-center">
+        <br />
+        <h5>Tilt debug values</h5>
+        <br />
       </div>
     </div>
 
+    <div class="row mt-2">
+      <div class="col-1"></div>
+      <div class="col-1">
+        beta:
+      </div>
+      <div class="col-1">
+        <span id="txtTiltBeta">0.0</span>
+      </div>
+
+      <div class="col-1">
+        center:
+      </div>
+      <div class="col-1">
+        <span id="txtCenterBeta">0.0</span>
+      </div>
+
+      <div class="col-1">
+        output:
+      </div>
+      <div class="col-1">
+        <span id="txtOutputBeta">0.0</span>
+      </div>
+    </div>
+
+    <div class="row mt-2">
+      <div class="col-1"></div>
+      <div class="col-1">
+        gamma:
+      </div>
+      <div class="col-1">
+        <span id="txtTiltGamma">0.0</span>
+      </div>
+
+      <div class="col-1">
+        center:
+      </div>
+      <div class="col-1">
+        <span id="txtCenterGamma">0.0</span>
+      </div>
+
+      <div class="col-1">
+        output:
+      </div>
+      <div class="col-1">
+        <span id="txtOutputGamma">0.0</span>
+      </div>
+    </div>
+
+    <div class="row mt-2">
+      <div class="col-1"></div>
+      <div class="col-1">
+        cnt:
+      </div>
+      <div class="col">
+        <span id="txtCnt">xxx</span>
+      </div>
+    </div>
+  </div>
 
   <!-- viewport resolution - normally not shown -->
-  <!-- <div id="resolutions" class="container" style="display:none">
+  <div id="resolutions" class="container d-none">
     <div class="row mt-2">
       <div class="col-2">
         screen height:
@@ -384,8 +289,7 @@
       <div class="col-2">
         <span id="txtWindowWidth">0.0</span>
       </div>
-    </div>  -->
-
+    </div> 
   </div> 
   
 
@@ -394,27 +298,7 @@
 <script src="client.js"></script>   <!--  from example with some cleanup  -->
 
 <script>
-
-  // hack to get full-screen?
-  // window.scrollTo(0, 1);
-
-  // from https://developer.mozilla.org/en-US/docs/Web/API/Fullscreen_API#examples
-  // function toggleFullScreen(video) {
-  //   if (!document.fullscreenElement) {
-  //     // If the document is not in full screen mode
-  //     // make the video full screen
-  //     video.requestFullscreen();
-  //   } else {
-  //     // Otherwise exit the full screen
-  //     if (document.exitFullscreen) {
-  //       document.exitFullscreen();
-  //     }
-  //   }
-  // }
-
-
-  
-  // More user code now
+  // User code now
   var 
     btnStart = document.getElementById('btnStart'),
     btnStop = document.getElementById('btnStop'),
@@ -434,6 +318,11 @@
     txtCenterGamma = document.getElementById('txtCenterGamma'),
     txtCnt = document.getElementById('txtCnt');
 
+
+  /*******************
+   * Tilt - Mobile only
+  ********************/
+
   var gyroPresent = (window.DeviceOrientationEvent && 'ontouchstart' in window),    // device supports tilt?
       gyroActive = false,                              // if we're using it for tilt control
       // all in degrees
@@ -444,17 +333,14 @@
       deviceGammaCenter = 0;
 
   // gyroPresent = true;   // debug - test appearance on non-mobile device
-
-  console.log("gyroPresent: " + gyroPresent);
+  // console.log("gyroPresent: " + gyroPresent);
 
   gyroPresent = true;   // debug - test appearance on non-mobile device
   tiltAvailable.style.display = gyroPresent? "block" : "none";
   tiltNotAvailable.style.display = gyroPresent? "none" : "block";
 
-  // btnDoTilt.style.display = "none";
-
   if (!gyroPresent) 
-    btnDoTilt.style.display = "none";
+    btnDoTilt.style.display = "none";   // inform user 
 
   // debug - show that we're getting events
   cnt = 0;
@@ -462,8 +348,6 @@
     cnt++;
     document.getElementById('txtCnt').innerHTML = cnt;
   }
-
-
 
   function doTilt() {
     showCount();      // debug
@@ -504,21 +388,11 @@
     showCount();
 
     if (event.beta === null) {
-      console.log("no orientation info")
+      // console.log("no orientation info")
       btnDoTilt.style.display = "none";
       return;    // not all devices support tilt (e.g. desktops)
     }
 
-    // btnDoTilt.style.display = "block-inline";
-    // cnt = 10000;
-
-
-    // if (!bTiltShowing) {
-    //   btnDoTilt.style.display = "block";
-    //   bTiltShowing = true;
-    // }
-
-    // console.log("event.beta: " + event.beta);
     // these angles are in degrees
     // var alpha = event.alpha;   // compass - 0 is north
     gyroBeta = event.beta; 
@@ -559,6 +433,9 @@
   }
   window.addEventListener('deviceorientation', handleOrientation);    // and wire it in
 
+  /*******************
+   * Sliders
+  ********************/
 
   var vertSlider = new Slider('#sldVert', {
     // reversed : true,   // only for vertical slider
@@ -593,7 +470,6 @@
     var x = vertSlider.getValue();
     var y = horSlider.getValue();
     
-    
     var linX = x / maxSlider;   // convert to -1 to 1
     var angY = y / maxSlider;
 
@@ -601,7 +477,8 @@
 
     // actually send
     dataChannelSend(jTwist);
-    console.log("jTwist: " + JSON.stringify(jTwist));
+    console.log("twist: "+linX+", ",angY)   // more succinct
+    // console.log("jTwist: " + JSON.stringify(jTwist));
   }
 
   function stopRobot() {
@@ -614,24 +491,20 @@
   }
  
 
-
-
-
-
-
-
+  /*******************
+   * Helper functions
+  ********************/
   // pixel 7 screen size...   376 x 835
-
   // used to see when we want to go to full-screen
   function isMobileDevice() {
     return window
       .matchMedia("only screen and (max-height: 400px)").matches;
   }
 
-  console.log("isMobileDevice: " + isMobileDevice());
+  // this is worthless as it's hard to see the console on a mobile device, eh?
+  // console.log("isMobileDevice: " + isMobileDevice());
 
   // must be called by a user initiated event
-  // document.requestFullscreen()  
   document.requestFullscreen = function() {
     if (document.documentElement.requestFullscreen) {
       document.documentElement.requestFullscreen();
@@ -643,19 +516,15 @@
   }
 
   function showConnected(bConnected) {
-    // btnStart.style.display = bConnected? "none" : "block";
-    // btnStop.style.display = bConnected? "block" : "none";
     stateConnected.style.display = bConnected? "inline-block" : "none";
     stateDisconnected.style.display = bConnected? "none" : "inline-block";
-
-    console.log("showConnected: " + bConnected);
+    // console.log("showConnected: " + bConnected);
   }
 
   function fBtnStart() {
     showConnected(true);
     if (isMobileDevice()) {
       document.requestFullscreen();
-      // document.requestFullscreen();
     }
     start();    // in client.js
   }
@@ -669,6 +538,7 @@
   }
 
   showConnected(false);     // initially
+  console.log("loaded...")
   
 </script>
 
