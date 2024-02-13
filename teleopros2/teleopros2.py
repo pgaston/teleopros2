@@ -3,29 +3,58 @@ teleopros2 - Browser interface to ROS2 robot
  - Web server - provides simple page with video and robot movement controls
  - Stream video back using WebRTC (thanks to aiortc)
  - Data channel - can send/receive JSON messages which are converted to/from ROS2 messages
+   (yes, ros2-web-bridge exists - this simplifies things for me)
  - Focused on supporting the NVidia stack - Jetson (Orin) Nano, Isaac Sim (for simulation)
    (will work elsewhere w/ some modifications)
  - Simplyfing assumptions - to be validated or changed over time.
 
 Open issues:
- - getting the video element to nicely show on mobile
  - https - throws up warning to user given the lack of a valid certificate.   Oh well. 
+         - also aiortc shows a couple of deprecation warnings around ssl - ignore for now...
 
 Limitations:
- - ROS2, Python, NVidia stack
+ - ROS2, Python, (NVidia stack)
  - Web connectivity to browser (have to play with Autonomous/Manual disconnect/reconnect...)
 
  *************
-Requires https for remote access.   See https://deliciousbrains.com/ssl-certificate-authority-for-local-https-development/#how-it-works
-to run...
+Requires https for remote access for mobile tilt.   This is turned on by default - you can always run http as desired.
+
+Create your own local certificate/key and place in the certs directory.   
+Google, or see https://deliciousbrains.com/ssl-certificate-authority-for-local-https-development/#how-it-works
+
+to run as python only...
 cd ~/workspaces/isaac_ros-dev/src/TeleOpROS2/teleopros2
+python3 teleopros2.py
 
-python3 teleopros2.py --cert-file certs/server.cert --key-file certs/server.key
+then open your browser to https://localhost:8080
 
-https://localhost:8081/testTilt.html
-https://192.168.86.220:8081/testTilt.html
-https://192.168.86.220:8081/                    -- doesn't work from mobile?
-https://192.168.86.220:8081/index.html  
+to run as ROS2 node
+
+to start nvidia docker:
+
+cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
+  ./scripts/run_dev.sh
+
+source install/setup.bash
+ros2 run ros2webrtc ros2webrtc
+
+*then realsense in another terminal window*
+source install/setup.bash
+ros2 launch realsense2_camera rs_launch.py
+
+*test if realsense seems off...*
+realsense-viewer
+*that, and use a third window to look at published topics - make sure all are there*
+
+*that, and use a third window to look at published topics - make sure all are there*
+
+to run in simulator - ISAAC SIM
+
+Make sure Nucleus and all it's services are running - http://localhost:3080/ --> restart all
+Start Isaac SIM
+(I'm using 'simple room' - needs ROS2 to work...)
+The code below shows the image topic Isaac SIM emites - you'll need to change for that.
+
 
 *************
 Build instructions: (docker on Jetson (Orin) Nano)
@@ -35,35 +64,14 @@ to start nvidia docker:
 cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
   ./scripts/run_dev.sh
 
-to build:
+to build: (using symlink to make debugging easier...)
 
 cd /workspaces/isaac_ros-dev
 colcon build --symlink-install --packages-select teleopros2
 source install/setup.bash
-ros2 run ros2webrtc ros2webrtc
-
-* this tells you the browser URL to use - http://localhost:8080
-
-*then realsense in another terminal*
-source install/setup.bash
-ros2 launch realsense2_camera rs_launch.py
-
-*test if realsense seems off...*
-realsense-viewer
-
-*that, and use a third window to look at published topics - make sure all are there*
-
-to run in simulator - ISAAC SIM
-
-Make sure Nucleus and all that is running - http://localhost:3080/ --> restart all
-Start Isaac SIM
-(I'm using 'simple room' - needs ROS2 to work...)
-
-
-*use docker, per above for ROS2*
+ros2 run teleopros2 teleopros2
 '''
 
-import argparse
 import asyncio
 import json
 import logging
@@ -93,41 +101,65 @@ from cv_bridge import CvBridge
 from sensor_msgs.msg import Image   # image, internal to ROS2 (and eventually published to browser via WebRTC)
 from geometry_msgs.msg import Twist
 
+
+####################################
+# Groups of code:
+# - WebRTC
+# - WebRTC datachannel
+# - ROS2 node
+# - Main
+####################################
+
+# Parameters we support via ROS2
+argsimagetopic = None           # ROS2 topic for the incoming image, ()RealSense)
+argsssl= False                  # use SSL, (true)
+argscertfile = None             # (certs/server.cert)
+argskeyfile = None              # (certs/server.key)
+argshost = None                 # (0.0.0.0)
+argsport = None                 # (8080) - note that Isaac SIM uses 8080, in with case, say use 8081
+argsfps = None                  # frames per second (15)
+argsverbose = False             # default logging verbosity (False - show Info, not Debug)
+
+
+
+height, width = 480, 640
+logger = logging.getLogger("pc")
+
+####################################
+# WebRTC - Code derived from server.py in aiortc
+####################################
+
+
 # from mediastreams.py
 AUDIO_PTIME = 0.020  # 20ms audio packetization
 VIDEO_CLOCK_RATE = 90000
 VIDEO_PTIME = 1 / 30  # 30fps
-VIDEO_PTIME = 1 / 15  # 30fps
-# reset given parameters
+VIDEO_PTIME = 1 / 15  # 30fps       # this gets reset based on a ROS2 parameter
 VIDEO_TIME_BASE = fractions.Fraction(1, VIDEO_CLOCK_RATE)
-
-
-
-
 
 class MediaStreamError(Exception):
     pass
 
-# aiortc stuff
 ROOT = os.path.dirname(__file__)
-height, width = 480, 640
-logger = logging.getLogger("pc")
 pcs = set()     # can support multiple connections - we only care about one
 pc = None       # the one
 dc = None       # data channel - None until we have one
-vst = None      # video stream track - None until we have one
 Ros2PubSubNode = None       # set to a valid object when ROS2 node is running
 
 # current image - to be sent to the browser
 # either a static image, or the last image received from ROS2
+# (I guess this could just be a simple global var...)
 class currentImage():
     def __init__(self):
         self.img = np.zeros((height, width, 3), np.uint8)
         self.resetImg()
 
     def resetImg(self):
-        # self.img[:, :] = (64, 64, 64)        # gray
-        self.img[:, :] = (0, 0, 200)         # different - this is red
+        self.img[:, :] = (200, 200, 200)        # light gray
+        # self.img[:, :] = (0, 0, 200)         # different - this is red
+        self.img = cv2.putText( self.img, "No messages from ROS2 available...",
+                               (5, 25), cv2.FONT_HERSHEY_PLAIN,
+                               1.5, (0,0,0), 1, cv2.LINE_AA)
 
     def setImg(self, img):
         self.img = img
@@ -139,12 +171,7 @@ curImg = currentImage()
 
 ### send a video frame to the browser
 # can set fps
-# do transforms as needed (?)
 class VideoStreamTrack(MediaStreamTrack):
-    """
-    A dummy video track which reads green frames.
-    """
-
     kind = "video"
 
     _start: float
@@ -168,7 +195,7 @@ class VideoStreamTrack(MediaStreamTrack):
         return self._timestamp, VIDEO_TIME_BASE
 
     def setImg(self, img):
-        self.currentImg = img       # hopefully atomically...
+        self.currentImg = img       # atomically (hopefully)...
 
     async def recv(self):
         img = curImg.getImg()
@@ -176,24 +203,21 @@ class VideoStreamTrack(MediaStreamTrack):
         pts, time_base = await self.next_timestamp()
         frame.pts = pts
         frame.time_base = time_base
-        # logging.debug("sending frame")
         return frame
 
     def __del__(self):
-        logging.info("VideoStreamTrack deleted")
+        logging.debug("VideoStreamTrack deleted")
 
 ## Web server
-async def index(request):
-    # logging.info("index.html request")
+async def index(request):       # a blank url defaults to index.html
     content = open(os.path.join(ROOT, "index.html"), "r").read()
-    # content = open(os.path.join(ROOT, "index-1.html"), "r").read()
     return web.Response(content_type="text/html", text=content)
 
-async def javascript(request):      # not used - seems to work w/ wildcards, no special content type
+async def javascript(request):      # not needed - seems to work w/ wildcards, no special content type
     content = open(os.path.join(ROOT, "client.js"), "r").read()
     return web.Response(content_type="application/javascript", text=content)
 
-async def offer(request):
+async def offer(request):           # WebRTC request from browser
     params = await request.json()
     offer = RTCSessionDescription(sdp=params["sdp"], type=params["type"])
 
@@ -201,18 +225,7 @@ async def offer(request):
     pc = RTCPeerConnection()
     pcs.add(pc)
 
-    # Tried to add here instead of in on_track - didn't work
-    # pc.addTrack(VideoStreamTrack())
-
     logger.info("PeerConnection created for %s", request.remote)
-
-    # prepare local media
-    # player = MediaPlayer(os.path.join(ROOT, "demo-instruct.wav"))
-    # if args.write_audio:
-    #     recorder = MediaRecorder(args.write_audio)
-    # else:
-    #     recorder = MediaBlackhole()
-
 
     @pc.on("datachannel")
     def on_datachannel(channel):
@@ -225,26 +238,25 @@ async def offer(request):
             if isinstance(message, str):
                 dataChannelReceive(message)
             else:
-                print(">>> unknown message??: ",message)    # not sure what would print?
+                logger.info("on_datachannel - unknown message: %s" % (message))     # wonder what will show up if binary?   :)
 
     @pc.on("connectionstatechange")
     async def on_connectionstatechange():
         global pc
         if pc is None:
-            # logger.info("on_connectionstatechange: pc is None")
+            logger.debug("on_connectionstatechange: pc is None")
             pass
         else:
-            logger.info("on_connectionstatechange: %s", pc.connectionState)
-
+            logger.debug("on_connectionstatechange: %s", pc.connectionState)
 
     @pc.on("iceconnectionstatechange")
     async def on_iceconnectionstatechange():
         global pc
         if pc is None:
-            # logger.info("iceconnectionstatechange: pc is None")
+            logger.debug("iceconnectionstatechange: pc is None")
             pass
         else:
-            logger.info("iceconnectionstatechange: %s", pc.iceConnectionState)
+            logger.debug("iceconnectionstatechange: %s", pc.iceConnectionState)
             if pc.iceConnectionState == "failed":
                 await pc.close()
                 pcs.discard(pc)
@@ -252,17 +264,17 @@ async def offer(request):
 
     @pc.on("track")
     def on_track(track):
-        logger.info("Track %s received", track.kind)
-
+        logger.debug("Track %s received", track.kind)
         if track.kind == "audio":
+            # ignored for this use case - see server.py for how they use
             pass
-            # pc.addTrack(player.audio)     # not used
-            # recorder.addTrack(track)      # not used
         elif track.kind == "video":
+            # this should not get called - as we're only pushing one way
+            logger.error("on_track - should not get video track")
+
             # add our locally generated video track here...
             pc.addTrack(VideoStreamTrack())
-            logger.info("Added video track to pc")
-
+            logger.debug("Added video track to pc")
 
         @track.on("ended")
         async def on_ended():
@@ -274,18 +286,11 @@ async def offer(request):
             global dc
             dc = None       # data channel no longer valid
 
-            # await recorder.stop()       # not used - this is MediaBlackHole
-
-
+    # this is the video we use to push from heah to theah
     pc.addTrack(VideoStreamTrack())
  
-
-    # logger.info("before setRemoteDescription")
     # handle offer
     await pc.setRemoteDescription(offer)
-    # await recorder.start()              # not used - this is MediaBlackHole
-
-    # logger.info("manually adding VideoStreamTrack")
 
     # send answer
     answer = await pc.createAnswer()
@@ -298,26 +303,8 @@ async def offer(request):
         ),
     )
 
-'''
-GOOD
-INFO:pc:PeerConnection created for 192.168.86.220
-INFO:pc:Track video received
-INFO:pc:XXXXXXXXXXXXXXXX    track.kind == video
-INFO:aioice.ice:Connection(0) Check CandidatePair(('192.168.86.220', 45126) -> ('192.168.86.220', 44607)) State.FROZEN -> State.WAITING
-INFO:aioice.ice:Connection(0) Check CandidatePair(('172.17.0.1', 53593) -> ('192.168.86.220', 44607)) State.FROZEN -> State.WAITING
-INFO:pc:iceconnectionstatechange: checking
-INFO:pc:on_connectionstatechange: connecting
-INFO:aioice.ice:Connection(0) Check CandidatePair(('192.168.86.220', 45126) -> ('192.168.86.220', 44607)) State.WAITING -> State.IN_PROGRESS
-INFO:aioice.ice:Connection(0) Check CandidatePair(('192.168.86.220', 45126) -> ('192.168.86.220', 44607)) State.IN_PROGRESS -> State.SUCCEEDED
-INFO:aioice.ice:Connection(0) Check CandidatePair(('172.17.0.1', 53593) -> ('192.168.86.220', 44607)) State.WAITING -> State.FAILED
-INFO:aioice.ice:Connection(0) ICE completed
-INFO:pc:iceconnectionstatechange: completed
-INFO:pc:on_connectionstatechange: connected
-'''
-
 async def on_shutdown(app):
     global dc
-
     dc = None
     # close peer connections
     # Not sure why there are more than one?
@@ -328,131 +315,10 @@ async def on_shutdown(app):
     pc = None
 
 
-
 ####################################
-# ROS2 - publish and subscribe
+# WebRTC - DATA CHANNEL interface
 ####################################
 
-jsonTopic = 'teleoppub'
-twistTopic = 'cmd_vel'
-
-# Arguments
-argsimagetopic = None
-argsssl= False
-argscertfile = None
-argskeyfile = None
-argshost = None
-argsport = None
-argsfps = None
-argsverbose = False
-
-# WebRTC node publish/subscribe
-class WebRTCPubSub(Node):
-
-    def __init__(self):
-        super().__init__('pywebrtc')
-
-        # parameters
-        # Isaac SIM - "/front/stereo_camera/left/rgb"
-        # Realsense - "/camera/color/image_raw"
-        self.declare_parameter('image-topic', "/camera/color/image_raw")
-        self.declare_parameter('ssl', True)
-        self.declare_parameter('cert-file', 'certs/server.cert')
-        self.declare_parameter('key-file', 'certs/server.key')
-        self.declare_parameter('host', "0.0.0.0")
-        self.declare_parameter('port', 8080)      # Isaac SIM takes 8080...   so in that case use 8081
-        self.declare_parameter('fps', 15)           # max video update rate
-        self.declare_parameter('verbose', False)
-
-        global argsimagetopic, argsssl, argscertfile, argskeyfile, argshost, argsport, argsfps, argsverbose
-        argsimagetopic = self.get_parameter('image-topic').value
-        argsssl = self.get_parameter('ssl').value
-        argscertfile = self.get_parameter('cert-file').value
-        argskeyfile = self.get_parameter('key-file').value
-        argshost = self.get_parameter('host').value
-        argsport = self.get_parameter('port').value
-        argsfps = self.get_parameter('fps').value
-        argsverbose = self.get_parameter('verbose').value
-
-        # print("argsimagetopic: ",argsimagetopic)
-        # print("argsssl: ",argsssl)
-        # print("argscertfile: ",argscertfile)
-        # print("argskeyfile: ",argskeyfile)
-        # print("argshost: ",argshost)
-        # print("argsport: ",argsport)
-        # print("argsfps: ",argsfps)
-        # print("argsverbose: ",argsverbose)
-
-        self.bridge = CvBridge()
-
-        # subscriber - t.b.d.
-        self.subscription = self.create_subscription(String,jsonTopic,self.json_listener_callback,10)
-        self.subscription  # prevent unused variable warning
-
-        self.imageSubscription = self.create_subscription(Image,argsimagetopic,self.listener_image_callback,10)
-        self.imageSubscription  # prevent unused variable warning
-
-        # publishers
-        self.jPublisher_ = self.create_publisher(String, jsonTopic, 10)
-        self.twistPublisher_ = self.create_publisher(Twist, twistTopic, 10)
-
-        logger.info('WebRTCPubSub initialized')
-        
-    def publishTwist(self, jTwist):
-        x = float(jTwist['linear']['x'])
-        y = float(jTwist['linear']['y'])
-        z = float(jTwist['linear']['z'])
-        rx = float(jTwist['angular']['x'])
-        ry = float(jTwist['angular']['y'])
-        rz = float(jTwist['angular']['z'])
-
-        twist = Twist()
-        twist.linear.x = x
-        twist.linear.y = y
-        twist.linear.z = z
-        twist.angular.x = rx
-        twist.angular.y = ry
-        twist.angular.z = rz
-        self.twistPublisher_.publish(twist)
-        logger.debug("twist: x=%f, y=%f, z=%f, rx=%f, ry=%f, rz=%f" % (x,y,z,rx,ry,rz))
-
-    def json_listener_callback(self, msg):
-        # publish the json to the browser via the data channel
-        logger.info('JSON: I heard: "%s"' % msg.data)
-
-    def listener_image_callback(self, image_message):
-
-        # we could defer conversion till needed, seeing as we only use half of the images (15fps use, generated at 30fps)
-
-        cv_image = self.bridge.imgmsg_to_cv2(image_message, desired_encoding='passthrough')
-
-        ## Conversion - perhaps this can be done on the GPU using NVidia stack on Jetson Orin...
-        cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
-
-        # check to see if need to resize
-        # print("ros image shape: ",cv_image.shape)
-        cv_image = cv2.resize(cv_image, (width, height))
-
-        # and push to the object holding the current image
-        curImg.setImg(cv_image)
-        # logger.info('Rcvd new image')
-
-    def json_pub(self,payload):        
-        msg = String()
-        msg.data = payload
-        self.jsonpublisher_.publish(msg)
-        logger.info('Published: "%s"' % msg.data)
-
-def runROSNode(args=None):
-    # global Ros2PubSubNode
-    # rclpy.init(args=args)
-    # Ros2PubSubNode = WebRTCPubSub()
-    rclpy.spin(Ros2PubSubNode)
-
-
-
-
-### hmmm, perhaps something stronger than this?
 def dataChannelOpen():
     if pc is not None:
         if (pc.connectionState == "connected"):
@@ -485,22 +351,22 @@ def dataChannelReceive(msg):
     try:
         jmsg = json.loads(msg)
     except:
-        logger.warning("error parsing received message" + msg)
+        logger.warning("error parsing received message: %s" % (msg))
         return
     
     if 'twist' in jmsg:
         # Vector3  linear  -> x,y,z
         # Vector3  angular -> rx,ry,rz (rotation about that axis - z is yaw)
         jTwist = jmsg['twist']
-        logger.info("twist: x=%.2f, rz=%.2f" % (jTwist['linear']['x'],jTwist['angular']['z']))
+        logger.debug("twist: x=%.2f, rz=%.2f" % (jTwist['linear']['x'],jTwist['angular']['z']))
         if Ros2PubSubNode is not None:      # should always be valid
+            # and send to ROS...
             Ros2PubSubNode.publishTwist(jTwist)
-        # and send to ROS...
     elif 'watchdog-browser' in jmsg:
+        logger.debug("watchdog: %s" % (msg))
         pass
-        logger.debug("watchdog:" + msg)
     else:
-        logger.warning("unknown message:" + msg)
+        logger.warning("unknown message: %s" % (msg))
 
 def watchdog():     # actual watchdog, within it's own thread
     dataChannelSend( {"watchdog-server": int(time.time())} )
@@ -511,7 +377,109 @@ threading.Timer(5, watchdog).start()
 
 
 
-# Need main function to get launched by ROS2
+####################################
+# ROS2 - publish and subscribe
+####################################
+
+jsonTopic = 'teleoppub'
+twistTopic = 'cmd_vel'
+
+# WebRTC node publish/subscribe
+class WebRTCPubSub(Node):
+
+    def __init__(self):
+        super().__init__('pywebrtc')
+
+        # parameters
+        # Isaac SIM - "/front/stereo_camera/left/rgb"
+        # Realsense - "/camera/color/image_raw"
+        self.declare_parameter('image-topic', "/camera/color/image_raw")
+        self.declare_parameter('ssl', True)
+        self.declare_parameter('cert-file', 'certs/server.cert')
+        self.declare_parameter('key-file', 'certs/server.key')
+        self.declare_parameter('host', "0.0.0.0")
+        self.declare_parameter('port', 8080)      # Isaac SIM takes 8080...   so in that case use 8081
+        self.declare_parameter('fps', 15)           # max video update rate
+        self.declare_parameter('verbose', False)
+
+        global argsimagetopic, argsssl, argscertfile, argskeyfile, argshost, argsport, argsfps, argsverbose
+        argsimagetopic = self.get_parameter('image-topic').value
+        argsssl = self.get_parameter('ssl').value
+        argscertfile = self.get_parameter('cert-file').value
+        argskeyfile = self.get_parameter('key-file').value
+        argshost = self.get_parameter('host').value
+        argsport = self.get_parameter('port').value
+        argsfps = self.get_parameter('fps').value
+        argsverbose = self.get_parameter('verbose').value
+
+        self.bridge = CvBridge()
+
+        # subscribers
+        self.imageSubscription = self.create_subscription(Image,argsimagetopic,self.listener_image_callback,10)
+        self.imageSubscription  # prevent unused variable warning
+
+        # JSON - exact uses t.b.d.
+        self.subscription = self.create_subscription(String,jsonTopic,self.json_listener_callback,10)
+        self.subscription  # prevent unused variable warning
+
+        # publishers
+        self.jPublisher_ = self.create_publisher(String, jsonTopic, 10)
+        self.twistPublisher_ = self.create_publisher(Twist, twistTopic, 10)
+
+        logger.debug('WebRTCPubSub initialized')
+        
+    def publishTwist(self, jTwist):
+        x = float(jTwist['linear']['x'])
+        y = float(jTwist['linear']['y'])
+        z = float(jTwist['linear']['z'])
+        rx = float(jTwist['angular']['x'])
+        ry = float(jTwist['angular']['y'])
+        rz = float(jTwist['angular']['z'])
+
+        twist = Twist()
+        twist.linear.x = x
+        twist.linear.y = y
+        twist.linear.z = z
+        twist.angular.x = rx
+        twist.angular.y = ry
+        twist.angular.z = rz
+        self.twistPublisher_.publish(twist)
+
+    def json_listener_callback(self, msg):
+        # publish the json to the browser via the data channel
+        logger.debug('JSON: I heard: "%s"' % msg.data)
+
+    def listener_image_callback(self, image_message):
+        # we could defer conversion till needed, seeing as we only use half of the images (15fps use, generated at 30fps)
+        # exercise for reader...
+
+        cv_image = self.bridge.imgmsg_to_cv2(image_message, desired_encoding='passthrough')
+
+        ## Conversion - perhaps this can be done on the GPU using NVidia stack on Jetson Orin...
+        cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
+
+        # check to see if need to resize
+        cv_image = cv2.resize(cv_image, (width, height))
+
+        # and push to the object holding the current image
+        curImg.setImg(cv_image)
+
+        # new image is now ready to be sent over WebRTC
+
+    def json_pub(self,payload):        
+        msg = String()
+        msg.data = payload
+        self.jsonpublisher_.publish(msg)
+        logger.debug('Published: "%s"' % msg.data)
+
+def runROSNode():
+     rclpy.spin(Ros2PubSubNode)
+
+
+####################################
+# Main - needed to launch w/ ROS2
+####################################
+
 def main():
     global Ros2PubSubNode
     rclpy.init()
@@ -522,39 +490,28 @@ def main():
     global VIDEO_PTIME
     VIDEO_PTIME = 1 / argsfps           # use parameterized fps
 
-    # parser = argparse.ArgumentParser(
-    #     description="WebRTC audio / video / data-channels demo"
-    # )
-    # parser.add_argument("--cert-file", help="SSL certificate file (for HTTPS)")
-    # parser.add_argument("--key-file", help="SSL key file (for HTTPS)")
-    # parser.add_argument(
-    #     "--host", default="0.0.0.0", help="Host for HTTP server (default: 0.0.0.0)"
-    # )
-    # parser.add_argument(
-    #     # Isaac SIM takes 8080...   so in that case use 8081
-    #     "--port", type=int, default=8080, help="Port for HTTP server (default: 8080)"
-    # )
-    # parser.add_argument("--verbose", "-v", action="count")
-    # parser.add_argument("--write-audio", help="Write received audio to a file")
-    # args = parser.parse_args()
-
     if argsverbose:
         logging.basicConfig(level=logging.DEBUG)
     else:
         logging.basicConfig(level=logging.INFO)
 
     if argsssl:
-        logging.info("creating SSL context...")
+        logging.debug("creating SSL context...")
         ssl_context = ssl.SSLContext()
-        ssl_context.load_cert_chain(argscertfile, argskeyfile)
+        ssl_context.load_cert_chain(os.path.join(ROOT,argscertfile), 
+                                    os.path.join(ROOT,argskeyfile))
+
     else:
-        # logging.info("Not SSL")
+        logging.debug("Not SSL")
         ssl_context = None
+
+    import warnings
+    warnings.filterwarnings("ignore")       # , category=DeprecationWarning)
 
     app = web.Application()
     app.on_shutdown.append(on_shutdown)
     app.router.add_get("/", index)                  # default - no file specified, use index.html
-    # app.router.add_get("/client.js", javascript)  # not used - seems to not need the mime type text/javascript
+    # app.router.add_get("/client.js", javascript)  # not needed - seems to not need the mime type text/javascript
     app.router.add_post("/offer", offer)            # startup ICE offer - rest is through data channel
     app.router.add_static('/', path=ROOT, follow_symlinks=True)       # and all else, including subfolders - js, css, png, ico, etc.
     web.run_app(
