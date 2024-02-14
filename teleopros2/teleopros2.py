@@ -500,9 +500,21 @@ def main():
 
     if argsssl:
         logging.debug("creating SSL context...")
+
+        certFP = argscertfile
+        keyFP = argskeyfile
+        if not os.path.isfile(argscertfile):            # either absolute, or relative
+            certFP = os.path.join(ROOT,argscertfile)
+            keyFP = os.path.join(ROOT,argskeyfile)
+        if not os.path.isfile(certFP):
+            logging.error("cert file not found: %s" % (certFP))
+            return
+        if not os.path.isfile(keyFP):
+            logging.error("key file not found: %s" % (keyFP))
+            return
+
         ssl_context = ssl.SSLContext()
-        ssl_context.load_cert_chain(os.path.join(ROOT,argscertfile), 
-                                    os.path.join(ROOT,argskeyfile))
+        ssl_context.load_cert_chain(certFP, keyFP)
 
     else:
         logging.debug("Not SSL")

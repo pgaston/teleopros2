@@ -116,6 +116,84 @@
         </div> -->
       </div> 
     </div>
+    
+
+
+
+    <!-- debug Tilting - normally not shown  d-none  -->
+    <div id="tiltAvailable2" class="container">
+      <div class="row">
+        <div class="col justify-content-center">
+          <br />
+          <h5>Tilt debug values</h5>
+          <br />
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col-1"></div>
+        <div class="col-1">
+          beta:
+        </div>
+        <div class="col-1">
+          <span id="txtTiltBeta">0.0</span>
+        </div>
+
+        <div class="col-1">
+          center:
+        </div>
+        <div class="col-1">
+          <span id="txtCenterBeta">0.0</span>
+        </div>
+
+        <div class="col-1">
+          output:
+        </div>
+        <div class="col-1">
+          <span id="txtOutputBeta">0.0</span>
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col-1"></div>
+        <div class="col-1">
+          gamma:
+        </div>
+        <div class="col-1">
+          <span id="txtTiltGamma">0.0</span>
+        </div>
+
+        <div class="col-1">
+          center:
+        </div>
+        <div class="col-1">
+          <span id="txtCenterGamma">0.0</span>
+        </div>
+
+        <div class="col-1">
+          output:
+        </div>
+        <div class="col-1">
+          <span id="txtOutputGamma">0.0</span>
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col-1"></div>
+        <div class="col-1">
+          cnt:
+        </div>
+        <div class="col">
+          <span id="txtCnt">xxx</span>
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+
   </div>  
       
   <div id="stateDisconnected" class="container-fluid">
@@ -188,116 +266,106 @@
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- debug Tilting - normally not shown -->
-  <div id="tiltAvailable2" class="container d-none">
-    <div class="row">
-      <div class="col justify-content-center">
-        <br />
-        <h5>Tilt debug values</h5>
-        <br />
-      </div>
-    </div>
 
-    <div class="row mt-2">
-      <div class="col-1"></div>
-      <div class="col-1">
-        beta:
-      </div>
-      <div class="col-1">
-        <span id="txtTiltBeta">0.0</span>
-      </div>
+    
+    <!-- viewport resolution - normally not shown d-none -->
+    <div id="resolutions" class="container ">
+      <div class="row mt-2">
+        <div class="col-2">
+          screen height:
+        </div>
+        <div class="col-2">
+          <span id="txtScreenHeight">0.0</span>
+        </div>
+      </div>  
 
-      <div class="col-1">
-        center:
-      </div>
-      <div class="col-1">
-        <span id="txtCenterBeta">0.0</span>
-      </div>
+      <div class="row mt-2">
+        <div class="col-2">
+          screen width:
+        </div>
+        <div class="col-2">
+          <span id="txtScreenWidth">0.0</span>
+        </div>
+      </div>  
 
-      <div class="col-1">
-        output:
-      </div>
-      <div class="col-1">
-        <span id="txtOutputBeta">0.0</span>
-      </div>
-    </div>
-
-    <div class="row mt-2">
-      <div class="col-1"></div>
-      <div class="col-1">
-        gamma:
-      </div>
-      <div class="col-1">
-        <span id="txtTiltGamma">0.0</span>
+      <div class="row mt-2">
+        <div class="col-2">
+          window height:
+        </div>
+        <div class="col-2">
+          <span id="txtWindowHeight">0.0</span>
+        </div>
       </div>
 
-      <div class="col-1">
-        center:
-      </div>
-      <div class="col-1">
-        <span id="txtCenterGamma">0.0</span>
-      </div>
+      <div class="row mt-2">
+        <div class="col-2">
+          window width:
+        </div>
+        <div class="col-2">
+          <span id="txtWindowWidth">0.0</span>
+        </div>
+      </div> 
 
-      <div class="col-1">
-        output:
-      </div>
-      <div class="col-1">
-        <span id="txtOutputGamma">0.0</span>
-      </div>
-    </div>
+      <div class="row mt-2">
+        <div class="col-2">
+          user agent:
+        </div>
+        <div class="col">
+          <span id="txtUserAgent"></span>
+        </div>
+      </div> 
 
-    <div class="row mt-2">
-      <div class="col-1"></div>
-      <div class="col-1">
-        cnt:
-      </div>
-      <div class="col">
-        <span id="txtCnt">xxx</span>
-      </div>
-    </div>
-  </div>
+      <div class="row mt-2">
+        <div class="col-2">
+          platform:
+        </div>
+        <div class="col">
+          <span id="txtPlatform"></span>
+        </div>
+      </div> 
 
-  <!-- viewport resolution - normally not shown -->
-  <div id="resolutions" class="container d-none">
-    <div class="row mt-2">
-      <div class="col-2">
-        screen height:
-      </div>
-      <div class="col-2">
-        <span id="txtScreenHeight">0.0</span>
-      </div>
-    </div>  
+      <div class="row mt-2">
+        <div class="col-2">
+          user agent data:
+        </div>
+        <div class="col">
+          <span id="txtUserAgentData"></span>
+        </div>
+      </div> 
 
-    <div class="row mt-2">
-      <div class="col-2">
-        screen width:
-      </div>
-      <div class="col-2">
-        <span id="txtScreenWidth">0.0</span>
-      </div>
-    </div>  
+      <div class="row mt-2">
+        <div class="col-2">
+          Mobile:
+        </div>
+        <div class="col">
+          <span id="txtMobile"></span>
+        </div>
+      </div> 
 
-    <div class="row mt-2">
-      <div class="col-2">
-        window height:
-      </div>
-      <div class="col-2">
-        <span id="txtWindowHeight">0.0</span>
-      </div>
-    </div>
+      <div class="row mt-2">
+        <div class="col-2">
+          iOS:
+        </div>
+        <div class="col">
+          <span id="txtiOS"></span>
+        </div>
+      </div> 
 
-    <div class="row mt-2">
-      <div class="col-2">
-        window width:
-      </div>
-      <div class="col-2">
-        <span id="txtWindowWidth">0.0</span>
-      </div>
+      <div class="row mt-2">
+        <div class="col-2">
+          gyroPresent:
+        </div>
+        <div class="col">
+          <span id="txtGyro"></span>
+        </div>
+      </div> 
+      
     </div> 
-  </div> 
   
+  </div>
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/bootstrap-slider.js" integrity="sha512-tCkLWlSXiiMsUaDl5+8bqwpGXXh0zZsgzX6pB9IQCZH+8iwXRYfcCpdxl/owoM6U4ap7QZDW4kw7djQUiQ4G2A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -314,6 +382,7 @@
     tiltNotAvailable = document.getElementById('tiltNotAvailable'),
     tiltAvailable = document.getElementById('tiltAvailable'),
     btnDoTilt = document.getElementById('btnDoTilt'),
+
     // debug values for tilt
     tiltAvailable2 = document.getElementById('tiltAvailable2'),
     txtTiltBeta = document.getElementById('txtTiltBeta'),
@@ -322,8 +391,18 @@
     txtOutputGamma = document.getElementById('txtOutputGamma'),
     txtCenterBeta = document.getElementById('txtCenterBeta'),
     txtCenterGamma = document.getElementById('txtCenterGamma'),
-    txtCnt = document.getElementById('txtCnt');
+    txtCnt = document.getElementById('txtCnt'),
 
+    txtScreenHeight = document.getElementById('txtScreenHeight'),
+    txtScreenWidth = document.getElementById('txtScreenWidth'),
+    txtWindowHeight = document.getElementById('txtWindowHeight'),
+    txtWindowWidth = document.getElementById('txtWindowWidth'),
+    txtUserAgent = document.getElementById('txtUserAgent'),
+    txtPlatform = document.getElementById('txtPlatform'),
+    txtUserAgentData = document.getElementById('txtUserAgentData'),
+    txtMobile = document.getElementById('txtMobile'),
+    txtiOS = document.getElementById('txtiOS'),
+    txtGyro = document.getElementById('txtGyro');
 
   /*******************
    * Tilt - Mobile only
@@ -338,10 +417,22 @@
       deviceBetaCenter = 0,    // centering values
       deviceGammaCenter = 0;
 
+  // show screen dimensions and more
+  txtScreenHeight.innerHTML = screen.height;
+  txtScreenWidth.innerHTML = screen.width;
+  txtWindowHeight.innerHTML = window.innerHeight;
+  txtWindowWidth.innerHTML = window.innerWidth;
+  txtUserAgent.innerHTML = navigator.userAgent;
+  txtPlatform.innerHTML = navigator.platform;
+  txtUserAgentData.innerHTML = JSON.stringify(navigator.userAgentData);
+  txtMobile.innerHTML = isMobileDevice();
+  txtiOS.innerHTML = iOS();
+  txtGyro.innerHTML = gyroPresent;
+
   // gyroPresent = true;   // debug - test appearance on non-mobile device
   // console.log("gyroPresent: " + gyroPresent);
 
-  gyroPresent = true;   // debug - test appearance on non-mobile device
+  // gyroPresent = true;   // debug - test appearance on non-mobile device
   tiltAvailable.style.display = gyroPresent? "block" : "none";
   tiltNotAvailable.style.display = gyroPresent? "none" : "block";
 
@@ -355,8 +446,28 @@
     document.getElementById('txtCnt').innerHTML = cnt;
   }
 
+  function requestDeviceOrientation () {
+    if (!iOS()) return; 
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      DeviceOrientationEvent.requestPermission()
+        .then(permissionState => {
+          if (permissionState === 'granted') {
+            window.addEventListener('deviceorientation', handleOrientation);
+          }
+      })
+      .catch(console.error);
+    } else {
+      // handle regular non iOS 13+ devices
+      console.log ("not iOS");
+    }
+  }
+
   function doTilt() {
+
     showCount();      // debug
+
+    requestDeviceOrientation();
+
     gyroActive = !gyroActive;   // toggle
     btnDoTilt.innerHTML = gyroActive ? "Stop Tilt" : "Use Tilt";
 
@@ -437,6 +548,10 @@
     vertSlider.setValue(linX);
     horSlider.setValue(angY);
   }
+
+  // Add here - desktop chrome will send an event w/ null - we can catch that
+  // Also works for Android
+  // iOS requires a user interaction with specific user permission to start the event - this does nothing there
   window.addEventListener('deviceorientation', handleOrientation);    // and wire it in
 
   /*******************
@@ -506,9 +621,32 @@
   ********************/
   // pixel 7 screen size...   376 x 835
   // used to see when we want to go to full-screen
-  function isMobileDevice() {
+  function isPhone() {
     return window
-      .matchMedia("only screen and (max-height: 400px)").matches;
+        .matchMedia("only screen and (max-height: 450px)").matches;
+  }
+
+  function iOS() {
+    return [
+      'iPad Simulator',
+      'iPhone Simulator',
+      'iPod Simulator',
+      'iPad',
+      'iPhone',
+      'iPod'
+    ].includes(navigator.platform)
+    // iPad on iOS 13 detection
+    || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
+  }
+
+  function isMobileDevice() {
+    if (/Android/.test(navigator.userAgent))    // throw in Android for good measure
+        return true;
+    if (iOS()) 
+      return true;
+    return navigator.maxTouchPoints &&
+        navigator.maxTouchPoints > 2 &&
+        /MacIntel/.test(navigator.platform);
   }
 
   // this is worthless as it's hard to see the console on a mobile device, eh?
@@ -533,7 +671,7 @@
 
   function fBtnStart() {
     showConnected(true);
-    if (isMobileDevice()) {
+    if (isPhone()) {
       document.requestFullscreen();
     }
     start();    // in client.js
@@ -542,7 +680,7 @@
   function fBtnStop() {
     stop();     // in client.js
     showConnected(false);
-    if (isMobileDevice()) {
+    if (isPhone()) {
       document.exitFullscreen();
     }
   }

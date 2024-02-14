@@ -2,17 +2,17 @@
 ## for ROS2 alone, or via the NVidia docker setup for Jetson (Orin) Nano/x86
 
 The use case is for teleoperation of a ROS2 robot, providing:
-- teleop desktop - ready for further customization - it already provides tilt control on mobile devices
+- teleop desktop - ready for further customization - it also provides tilt control on mobile devices
 - efficient transport using WebRTC - both video and data
 - generally targeted at the NVidia stack, but not required.
 
-![TeloOpScreenshots](https://github.com/pgaston/teleopros2/assets/3617755/0f7b2586-aba4-4f4a-a859-2769d794dad7)
+![TeloOp Screenshots](https://github.com/pgaston/teleopros2/assets/3617755/0f7b2586-aba4-4f4a-a859-2769d794dad7)
 
 This is based on [aiortc](https://github.com/aiortc/aiortc); [jetbot-ros2](https://github.com/jdgalviss/jetbot-ros2) for inspiration; and with special consideration to [webrtc_ros](https://github.com/RobotWebTools/webrtc_ros) (which I couldn't get to work) from 'Robot Web Tools', and others.
 
 ## Overview
 
-Please see the Medium article for a richer discussion.   Basically this creates a browser based desktop leveraging [aiortc](https://github.com/aiortc/aiortc) within the ROS2 environment.
+Please see the [Medium article](https://medium.com/@peter.gaston/add-teleop-to-your-ros2-robot-5b7b0a5606ce) for a richer discussion.   Basically this creates a browser based desktop leveraging [aiortc](https://github.com/aiortc/aiortc) within the ROS2 environment.
 
 ## Installation
 
@@ -37,14 +37,25 @@ cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
   ./scripts/run_dev.sh
 ```
 
-3. Build
+3. Add SSL certificates.   This is required for mobile.   This is the default.    To change the default set the 'ssl' parameter to false.
+ 
+- Create a 'certs' directory at the top level of teleopros2
+- Create a local server.certs and server.key file in this directory.   [Here is one approach.](https://deliciousbrains.com/ssl-certificate-authority-for-local-https-development/#how-it-works) .    *Tip - don't add a passphrase.*
+
+*Note - your browser will show this as insecure.*   Go to advanced / proceed anyway.   Exercise for reader to do this 'correctly'.
+
+
+4. Build
 
 Build (in the docker)
 ```
 cd /workspaces/isaac_ros-dev
 colcon build --symlink-install --packages-select pywebrtc
 ```
-4. Run/test with realsense camera
+Run to test.
+
+
+5. Run/test with realsense camera
 ```
 source install/setup.bash
 ros2 run teleopros2 teleopros2
@@ -67,8 +78,7 @@ ros2 launch realsense2_camera rs_launch.py
 
 ** voila - WebRTC showing your realsense image **
 
-5. Run/test with NVidia Isaac sim.   [Web page](https://nvidia-isaac-ros.github.io/concepts/scene_reconstruction/nvblox/tutorials/tutorial_isaac_sim.html)
-
+6. Run/test with NVidia Isaac sim.   [Web page](https://nvidia-isaac-ros.github.io/concepts/scene_reconstruction/nvblox/tutorials/tutorial_isaac_sim.html)
 
 
 Start Isaac sim [per directions](https://nvidia-isaac-ros.github.io/concepts/scene_reconstruction/nvblox/tutorials/tutorial_isaac_sim.html) .    BTW, I need to go to http://localhost:3080/ to restart all services (e.g., Nucleus).
@@ -86,7 +96,6 @@ to move the robot for testing purposes, a simple node is 'teleop_twist_keyboard'
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 I also have a customization of the 'simple room' with a jetbot.   This publishes images and accepts robot movement commands.
-
 
 
 ## Useful links
