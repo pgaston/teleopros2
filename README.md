@@ -47,7 +47,7 @@ cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
 Build (in the docker)
 ```
 cd /workspaces/isaac_ros-dev
-colcon build --symlink-install --packages-select pywebrtc
+colcon build --symlink-install --packages-select teleopros2
 ```
 Run to test.   Once you click `Connect` the server will send video from the ROS2 source to the
 browser.   The image shown in this case will indicate it is not receiving ROS2 image messages, since you aren't providing any, yet.
@@ -83,9 +83,9 @@ Start Isaac sim [per directions](https://nvidia-isaac-ros.github.io/concepts/sce
 ./python.sh ${ISAAC_ROS_WS}/src/isaac_ros_nvblox/nvblox_examples/nvblox_isaac_sim/omniverse_scripts/start_isaac_sim.py --gpu_physics_enabled
 ```
 
-This Isaac sim publishes the image on 
-```/front/stereo_camera/left/rgb```
-so you may need to change the pywebrtc.py code to subscribe to that (okay, this can be fixed so it's easier...)
+This Isaac sim publishes the image on (at least my version)
+```/image_raw```
+so you may need to change the teleopros2.py code to subscribe to that (okay, this can be fixed so it's easier...)
 
 to move the robot for testing purposes, a simple node is 'teleop_twist_keyboard'.
 ```

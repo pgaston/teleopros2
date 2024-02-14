@@ -9,6 +9,15 @@ teleopros2 - Browser interface to ROS2 robot
  - Simplyfing assumptions - to be validated or changed over time.
 
 Open issues:
+ - performance - how to optimize for the Jetson Nano (Orin) - use of GPU for image processing.   
+         - Interesting, that when the iPad starts running, the server shows that it's using the GPU,
+           this doesn't happen for desktop or Android Chrome.   (I assume for h264 encoding and ???)
+           The NVidia stack can do this, but it's not integrated into this code stack.   
+           Worth looking into at some point.
+         - Also, I note below an optimization of when to convert an image from ROS2 to a format for aiortc.
+           Currently I do this when the image is received - though probably half are actually used.   The
+           conversion could be deferred until the image is actually needed.   t.b.d.
+         - Python - heck, the simplicity and robustness of aiortc have me sold.
  - https - throws up warning to user given the lack of a valid certificate.   Oh well. 
          - also aiortc shows a couple of deprecation warnings around ssl - ignore for now...
  - logging - currently using a non ROS2 logger - hence logging doesn't show up when running as a ROS2 node.
