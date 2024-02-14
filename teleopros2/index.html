@@ -117,11 +117,8 @@
       </div> 
     </div>
     
-
-
-
     <!-- debug Tilting - normally not shown  d-none  -->
-    <div id="tiltAvailable2" class="container">
+    <div id="tiltAvailable2" class="container d-none">
       <div class="row">
         <div class="col justify-content-center">
           <br />
@@ -267,10 +264,8 @@
       </div>
     </div>
 
-
-    
     <!-- viewport resolution - normally not shown d-none -->
-    <div id="resolutions" class="container ">
+    <div id="resolutions" class="container d-none">
       <div class="row mt-2">
         <div class="col-2">
           screen height:
@@ -577,6 +572,8 @@
     showValues();
   });
 
+  var lastLinX = 0, lastAngY = 0;
+
   function showValues() {
     var x = vertSlider.getValue();
     var y = horSlider.getValue();
@@ -598,11 +595,17 @@
     var linX = x / maxSlider;   // convert to -1 to 1
     var angY = y / maxSlider;
 
-    jTwist = { "twist": { "linear": { "x": linX, "y": 0, "z": 0 }, "angular": { "x": 0, "y": 0, "z": angY } } }
+    // don't send if no change
+    if (linX === lastLinX && angY === lastAngY) 
+      return; 
+
+    lastLinX = linX;
+    lastAngY = angY;
 
     // actually send
+    jTwist = { "twist": { "linear": { "x": linX, "y": 0, "z": 0 }, "angular": { "x": 0, "y": 0, "z": angY } } }
     dataChannelSend(jTwist);
-    console.log("twist: "+linX+", ",angY)   // more succinct
+    // console.log("twist: "+linX+", ",angY)   // more succinct
     // console.log("jTwist: " + JSON.stringify(jTwist));
   }
 

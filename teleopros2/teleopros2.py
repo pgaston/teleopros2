@@ -11,6 +11,9 @@ teleopros2 - Browser interface to ROS2 robot
 Open issues:
  - https - throws up warning to user given the lack of a valid certificate.   Oh well. 
          - also aiortc shows a couple of deprecation warnings around ssl - ignore for now...
+ - logging - currently using a non ROS2 logger - hence logging doesn't show up when running as a ROS2 node.
+           - for now, debug using 'python3 teleopros2.py'
+ - watchdog - periodic message each way, but not sure what functionality this is adding at present - leaving it in
 
 Limitations:
  - ROS2, Python, (NVidia stack)
@@ -359,6 +362,7 @@ def dataChannelReceive(msg):
         # Vector3  angular -> rx,ry,rz (rotation about that axis - z is yaw)
         jTwist = jmsg['twist']
         logger.debug("twist: x=%.2f, rz=%.2f" % (jTwist['linear']['x'],jTwist['angular']['z']))
+        # print("twist: x=%.2f, rz=%.2f" % (jTwist['linear']['x'],jTwist['angular']['z']))
         if Ros2PubSubNode is not None:      # should always be valid
             # and send to ROS...
             Ros2PubSubNode.publishTwist(jTwist)
