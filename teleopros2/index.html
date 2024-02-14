@@ -185,12 +185,6 @@
         </div>
       </div>
     </div>
-
-
-
-
-
-
   </div>  
       
   <div id="stateDisconnected" class="container-fluid">
@@ -226,8 +220,11 @@
                   <div class="option">
                     <!-- Session Traversal Utilities for NAT (STUN) is a protocol to discover 
                     your public address and determine any restrictions in your router 
-                    that would prevent a direct connection with a peer. -->
-                    <input id="use-stun" type="checkbox"/>
+                    that would prevent a direct connection with a peer. 
+                  
+                    This seems to be required over the internet.    Not needed locally.
+                    -->
+                    <input id="use-stun" type="checkbox" checked />
                     <label for="use-stun">Use STUN server</label>
                   </div>
               </div>

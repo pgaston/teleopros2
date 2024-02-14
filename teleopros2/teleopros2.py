@@ -1,4 +1,6 @@
 '''
+*Note* - for use over the internet (last test!), using STUN seems to be required.
+
 teleopros2 - Browser interface to ROS2 robot
  - Web server - provides simple page with video and robot movement controls
  - Stream video back using WebRTC (thanks to aiortc)
