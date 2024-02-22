@@ -180,15 +180,18 @@ class currentImage():
         # self.img[:, :] = (0, 0, 200)         # different - this is red
 
     def setImg(self, ros2Image):
+        # print("setImg",ros2Image)
         self.ros2Image = ros2Image
 
     def getImg(self):
+        # print("getImg",self.ros2Image)
         if self.ros2Image is not None:
             ## Conversion - perhaps this can be done on the GPU using NVidia stack on Jetson Orin...
-            cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
+            cv_image = cv2.cvtColor(self.ros2Image, cv2.COLOR_BGR2RGB)
             # check to see if need to resize ?
             # print("ros image shape: ",cv_image.shape)
             cv_image = cv2.resize(cv_image, (width, height))
+            # print("cv_image shape: ",cv_image.shape)
             return cv_image
         else:
             return self.defaultImg
@@ -418,10 +421,10 @@ class WebRTCPubSub(Node):
         super().__init__('pywebrtc')
 
         # parameters
-        kRealSenseIamgeTopic = "/camera/color/image_raw"
+        kRealSenseImageTopic = "/camera/color/image_raw"
         kIsaacSimImageTopic = "/front/stereo_camera/left/rgb"       # not publishing?
         kIsaacSimImageTopic = "/image_raw"
-        self.declare_parameter('image-topic', kIsaacSimImageTopic)
+        self.declare_parameter('image-topic', kRealSenseImageTopic)
         self.declare_parameter('ssl', True)
         self.declare_parameter('cert-file', 'certs/server.cert')
         self.declare_parameter('key-file', 'certs/server.key')
