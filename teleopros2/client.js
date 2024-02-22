@@ -28,45 +28,20 @@ var pc = null;
 // data channel
 var dc = null, dcOpen = false, dcWatchdog = null;
 
-function createPeerConnection() {
-    var config = {
-        sdpSemantics: 'unified-plan'
-    };
-
-    if (cbUseStun.checked) {
-        config.iceServers = [{urls: ['stun:stun.l.google.com:19302']}];
+// support adding a timestamp to watchdog messages
+var time_start = null;
+function current_stamp() {
+    if (time_start === null) {
+        time_start = new Date().getTime();
+        return 0;
+    } else {
+        return new Date().getTime() - time_start;
     }
-
-    pc = new RTCPeerConnection(config);
-
-    // register some listeners to help debugging
-    pc.addEventListener('icegatheringstatechange', function() {
-        iceGatheringLog.textContent += ' -> ' + pc.iceGatheringState;
-    }, false);
-    iceGatheringLog.textContent = pc.iceGatheringState;
-
-    pc.addEventListener('iceconnectionstatechange', function() {
-        iceConnectionLog.textContent += ' -> ' + pc.iceConnectionState;
-    }, false);
-    iceConnectionLog.textContent = pc.iceConnectionState;
-
-    pc.addEventListener('signalingstatechange', function() {
-        signalingLog.textContent += ' -> ' + pc.signalingState;
-    }, false);
-    signalingLog.textContent = pc.signalingState;
-
-    // connect audio / video
-    pc.addEventListener('track', function(evt) {
-         if (evt.track.kind == 'video')
-            objVideo.srcObject = evt.streams[0];
-        else
-            objAudio.srcObject = evt.streams[0];
-    });
-
-    return pc;
 }
 
 function negotiate() {
+    pc.addTransceiver('video', {direction: 'recvonly'});
+    // pc.addTransceiver('audio', {direction: 'recvonly'});
     return pc.createOffer().then(function(offer) {
         return pc.setLocalDescription(offer);
     }).then(function() {
@@ -86,8 +61,6 @@ function negotiate() {
         });
     }).then(function() {
         var offer = pc.localDescription;
-        // var codec;      // see original code to add back in
-
         txtOfferSdp.textContent = offer.sdp;
         return fetch('/offer', {
             body: JSON.stringify({
@@ -124,10 +97,20 @@ function negotiate() {
  }
 
  function dataChannelReceive(msg) {
-    jmsg = JSON.parse(msg);
-    // console.log("received message: " + jmsg);
+    try {
+        jmsg = JSON.parse(msg);
+    } catch (e) {
+        console.log("failed to json parse message: " + msg);
+        alert(e);       // should really never happen?
+        return;
+    }
 
-    if ('watchdog-server' in jmsg) {
+    // handle message type
+    // console.log("received message: " + jmsg);
+    if ('robot-status' in jmsg) {
+        // placeholder for now
+    } else if ('watchdog-server' in jmsg) {
+        // currently do nothing
         // console.log("watchdog-server: " + jmsg['watchdog-server']);
     } else {
         console.log("unknown message type: " + jmsg['type']);
@@ -135,17 +118,40 @@ function negotiate() {
  }
 
 function start() {
-    pc = createPeerConnection();
+    var config = {
+        sdpSemantics: 'unified-plan'
+    };
 
-    var time_start = null;
-    function current_stamp() {
-        if (time_start === null) {
-            time_start = new Date().getTime();
-            return 0;
-        } else {
-            return new Date().getTime() - time_start;
-        }
+    if (cbUseStun.checked) {
+        config.iceServers = [{urls: ['stun:stun.l.google.com:19302']}];
     }
+
+    pc = new RTCPeerConnection(config);
+
+    // Add in some debugging logging
+    pc.addEventListener('icegatheringstatechange', function() {
+        iceGatheringLog.textContent += ' -> ' + pc.iceGatheringState;
+    }, false);
+    iceGatheringLog.textContent = pc.iceGatheringState;
+
+    pc.addEventListener('iceconnectionstatechange', function() {
+        iceConnectionLog.textContent += ' -> ' + pc.iceConnectionState;
+    }, false);
+    iceConnectionLog.textContent = pc.iceConnectionState;
+
+    pc.addEventListener('signalingstatechange', function() {
+        signalingLog.textContent += ' -> ' + pc.signalingState;
+    }, false);
+    signalingLog.textContent = pc.signalingState;
+
+    // connect audio / video
+    pc.addEventListener('track', function(evt) {
+        if (evt.track.kind == 'video')
+            objVideo.srcObject = evt.streams[0];
+        else
+            objAudio.srcObject = evt.streams[0];
+    });
+
 
     // options:                            
     // Ordered, reliable - default
@@ -173,10 +179,6 @@ function start() {
         dataChannelReceive(evt.data);
     };
 
-    // from https://stackoverflow.com/questions/50002099/webrtc-one-way-video-call
-    pc.addTransceiver('video');
-    // this step seems to be optional:
-    pc.getTransceivers().forEach(t => t.direction = 'recvonly');
     negotiate();
 }
 

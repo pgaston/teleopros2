@@ -12,13 +12,17 @@ teleopros2 - Browser interface to ROS2 robot
 
 Open issues:
  - performance - how to optimize for the Jetson Nano (Orin) - use of GPU for image processing.   
-         - Interesting, that when the iPad starts running, the server shows that it's using the GPU,
+   resize, color conversion, h.264 encoding using Deepstream/gstreamer 
+   - project ros_deep_learning could be a node to use
+   - i.e., accept as topics either:
+     - 'image' - and do the conversion on the CPU, or
+     - 'image_gpu' - and use the already converted/encoded image
+       see https://github.com/aiortc/aiortc/discussions/769
+       oh, and if you see this topic, ignore all 'image' topics... (unsubscribe)
+ - Interesting, that when the iPad starts running, the server shows that it's using the GPU,
            this doesn't happen for desktop or Android Chrome.   (I assume for h264 encoding and ???)
            The NVidia stack can do this, but it's not integrated into this code stack.   
            Worth looking into at some point.
-         - Also, I note below an optimization of when to convert an image from ROS2 to a format for aiortc.
-           Currently I do this when the image is received - though probably half are actually used.   The
-           conversion could be deferred until the image is actually needed.   t.b.d.
          - Python - heck, the simplicity and robustness of aiortc have me sold.
  - https - throws up warning to user given the lack of a valid certificate.   Oh well. 
          - also aiortc shows a couple of deprecation warnings around ssl - ignore for now...
@@ -155,6 +159,7 @@ class MediaStreamError(Exception):
     pass
 
 ROOT = os.path.dirname(__file__)
+HOST_IP = os.getenv('HOST_IP', "0.0.0.0")
 pcs = set()     # can support multiple connections - we only care about one
 pc = None       # the one
 dc = None       # data channel - None until we have one
@@ -162,24 +167,31 @@ Ros2PubSubNode = None       # set to a valid object when ROS2 node is running
 
 # current image - to be sent to the browser
 # either a static image, or the last image received from ROS2
-# (I guess this could just be a simple global var...)
+# we defer image conversion until the last moment, as we only use half of the images (15fps use, generated at 30fps)
 class currentImage():
     def __init__(self):
-        self.img = np.zeros((height, width, 3), np.uint8)
+        self.ros2Image = None
+        self.defaultImg = np.zeros((height, width, 3), np.uint8)
         self.resetImg()
 
-    def resetImg(self):
-        self.img[:, :] = (200, 200, 200)        # light gray
+    def resetImg(self):     # called when channel is closed
+        self.ros2Image = None
+        self.defaultImg[:, :] = (64, 64, 64)        # gray
         # self.img[:, :] = (0, 0, 200)         # different - this is red
-        self.img = cv2.putText( self.img, "No messages from ROS2 available...",
-                               (5, 25), cv2.FONT_HERSHEY_PLAIN,
-                               1.5, (0,0,0), 1, cv2.LINE_AA)
 
-    def setImg(self, img):
-        self.img = img
+    def setImg(self, ros2Image):
+        self.ros2Image = ros2Image
 
     def getImg(self):
-        return self.img
+        if self.ros2Image is not None:
+            ## Conversion - perhaps this can be done on the GPU using NVidia stack on Jetson Orin...
+            cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
+            # check to see if need to resize ?
+            # print("ros image shape: ",cv_image.shape)
+            cv_image = cv2.resize(cv_image, (width, height))
+            return cv_image
+        else:
+            return self.defaultImg
     
 curImg = currentImage()
 
@@ -413,7 +425,7 @@ class WebRTCPubSub(Node):
         self.declare_parameter('ssl', True)
         self.declare_parameter('cert-file', 'certs/server.cert')
         self.declare_parameter('key-file', 'certs/server.key')
-        self.declare_parameter('host', "0.0.0.0")
+        self.declare_parameter('host', HOST_IP)
         self.declare_parameter('port', 8080)      # Isaac SIM takes 8080...   so in that case use 8081
         self.declare_parameter('fps', 15)           # max video update rate
         self.declare_parameter('verbose', False)
@@ -467,21 +479,9 @@ class WebRTCPubSub(Node):
         logger.debug('JSON: I heard: "%s"' % msg.data)
 
     def listener_image_callback(self, image_message):
-        # we could defer conversion till needed, seeing as we only use half of the images (15fps use, generated at 30fps)
-        # exercise for reader...
-
         cv_image = self.bridge.imgmsg_to_cv2(image_message, desired_encoding='passthrough')
-
-        ## Conversion - perhaps this can be done on the GPU using NVidia stack on Jetson Orin...
-        cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
-
-        # check to see if need to resize
-        cv_image = cv2.resize(cv_image, (width, height))
-
-        # and push to the object holding the current image
+        # Defer conversion till needed, seeing as we only use half of the images (15fps use, generated at 30fps)
         curImg.setImg(cv_image)
-
-        # new image is now ready to be sent over WebRTC
 
     def json_pub(self,payload):        
         msg = String()
