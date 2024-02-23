@@ -43,7 +43,9 @@ function negotiate() {
     console.log("negotiate called");
     pc.addTransceiver('video', {direction: 'recvonly'});
     // pc.addTransceiver('audio', {direction: 'recvonly'});
+    console.log("createOffer next");
     return pc.createOffer().then(function(offer) {
+        console.log("createOffer back");
         return pc.setLocalDescription(offer);
     }).then(function() {
         // wait for ICE gathering to complete
