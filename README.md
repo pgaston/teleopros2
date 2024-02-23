@@ -22,8 +22,8 @@ git clone git@github.com:pgaston/TeleOpROS2.git
 
 2. Copy the following two files - this is for customizing the docker build process
 ```
-${ISAAC_ROS_WS}/src/TeleOpROS2/docker/.isaac_ros_common-config
-${ISAAC_ROS_WS}/src/TeleOpROS2/docker/.isaac_ros_common-config
+${ISAAC_ROS_WS}/src/teleoprOS2/docker/.isaac_ros_common-config
+${ISAAC_ROS_WS}/src/teleoprOS2/docker/.isaac_ros_common-config
 ```
 to the folder
 ```
@@ -39,6 +39,7 @@ cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
  
 - Create a 'certs' directory at the top level of teleopros2
 - Create a local server.certs and server.key file in this directory.   [Here is one approach.](https://deliciousbrains.com/ssl-certificate-authority-for-local-https-development/#how-it-works) .    *Tip - don't add a passphrase.*
+- (btw, I included a certs.zip that you can expand into a certs folder there.    Not secure in the slightest - but you can use to test mobile/twisting.   I can't include otherwise as it sets off a github security alert.)
 
 *Note - your browser will show this as insecure.*   Go to advanced / proceed anyway.   Exercise for the  to do this 'correctly'.
 
@@ -93,6 +94,10 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 I also have a customization of the 'simple room' with a jetbot.   This publishes images and accepts robot movement commands.
 
+
+## To do's
+- Performance enhancement.   Build a ROS2 node using deepstream to convert the image topic into a resized, recolored, h264 encoded set'o'bits using the GPU.   Not hard, but t.b.d.
+- Use on a real robot.   Turns out the original Nano is too old for the new NVidia docker setup, and the Orin Nano doesn't fit on, say the Jetbot.    Still building.
 
 ## Useful links
 
