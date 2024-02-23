@@ -54,11 +54,16 @@ cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
   ./scripts/run_dev.sh
 
 source install/setup.bash
-ros2 run teleopros2 teleopros2
+ros2 run teleopros2 teleopros2_node
 
 *then realsense in another terminal window*
 source install/setup.bash
 ros2 launch realsense2_camera rs_launch.py
+
+*or, in a single launch file
+source install/setup.bash
+ros2 launch teleopros2 teleRSCamera_launch.py
+
 
 *test if realsense seems off...*
 realsense-viewer
@@ -421,7 +426,7 @@ class WebRTCPubSub(Node):
         super().__init__('pywebrtc')
 
         # parameters
-        kRealSenseImageTopic = "/camera/color/image_raw"
+        kRealSenseImageTopic = "/color/image_raw"
         kIsaacSimImageTopic = "/front/stereo_camera/left/rgb"       # not publishing?
         kIsaacSimImageTopic = "/image_raw"
         self.declare_parameter('image-topic', kRealSenseImageTopic)
@@ -447,6 +452,12 @@ class WebRTCPubSub(Node):
 
         # subscribers
         logger.info("listening for images on: %s" % (argsimagetopic))
+        print("listening for images on: %s" % (argsimagetopic))
+        print("listening for images on: %s" % (argsimagetopic))
+        print("listening for images on: %s" % (argsimagetopic))
+        print("listening for images on: %s" % (argsimagetopic))
+        print("listening for images on: %s" % (argsimagetopic))
+
         self.imageSubscription = self.create_subscription(Image,argsimagetopic,self.listener_image_callback,10)
         self.imageSubscription  # prevent unused variable warning
 
@@ -484,6 +495,8 @@ class WebRTCPubSub(Node):
     def listener_image_callback(self, image_message):
         cv_image = self.bridge.imgmsg_to_cv2(image_message, desired_encoding='passthrough')
         # Defer conversion till needed, seeing as we only use half of the images (15fps use, generated at 30fps)
+
+        print("caught image")
         curImg.setImg(cv_image)
 
     def json_pub(self,payload):        

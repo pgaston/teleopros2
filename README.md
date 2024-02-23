@@ -57,13 +57,13 @@ browser.   The image shown in this case will indicate it is not receiving ROS2 i
 5. Run/test with realsense camera
 ```
 source install/setup.bash
-ros2 run teleopros2 teleopros2
+ros2 run teleopros2 teleopros2_node
 ```
 
 You can then browse to the following page with your browser:
 
 http://127.0.0.1:8080
-or, for the secure version
+or, for the secure version (default)
 https://127.0.0.1:8080
 
 
@@ -71,6 +71,10 @@ If you have a realsense installed, run in another terminal (do the run_dev.sh th
 ```
 source install/setup.bash
 ros2 launch realsense2_camera rs_launch.py
+```
+or, in a single launch file
+```
+ros2 launch teleopros2 teleRSCamera_launch.py
 ```
 
 ** voila - WebRTC showing your realsense image **

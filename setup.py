@@ -4,6 +4,8 @@ import os
 
 package_name = 'teleopros2'
 
+        #(os.path.join('share', package_name, 'launch'),glob('launch/*.launch.py')),
+
 setup(
     name=package_name,
     version='0.0.0',
@@ -12,7 +14,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        (os.path.join('share', package_name, 'launch'),glob('launch/*.launch.py')),
+        (os.path.join('share', package_name), glob('teleopros2/launch/*launch.py')),
         ('lib/python3.8/site-packages/teleopros2', glob('teleopros2/*.html')),
         ('lib/python3.8/site-packages/teleopros2', glob('teleopros2/*.js')),
         ('lib/python3.8/site-packages/teleopros2', glob('teleopros2/*.py')),        # shouldn't this already work?
@@ -25,12 +27,10 @@ setup(
     maintainer_email='peter.gaston@gmail.com',
     description='Teleop on ros2 leveraging WebRTC (aiortc).',
     license='Apache License 2.0',
-
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'teleopros2 = teleopros2.teleopros2:main',
-            # 'testpubimages = ros2webrtc.testpubimages:main',
+            'teleopros2_node = teleopros2.teleopros2:main',
         ],
     },
 )
