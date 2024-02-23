@@ -1,2 +1,2 @@
-CONFIG_IMAGE_KEY=ros2_humble.realsense.pywebrtc
-CONFIG_DOCKER_SEARCH_DIRS=(/home/pg/workspaces/isaac_ros-dev/src/pywebrtc/docker)
+CONFIG_IMAGE_KEY=ros2_humble.realsense.teleopros2
+CONFIG_DOCKER_SEARCH_DIRS=(/home/pg/workspaces/isaac_ros-dev/src/teleopros2/docker)
