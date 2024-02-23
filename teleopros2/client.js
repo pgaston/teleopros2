@@ -40,6 +40,7 @@ function current_stamp() {
 }
 
 function negotiate() {
+    console.log("negotiate called");
     pc.addTransceiver('video', {direction: 'recvonly'});
     // pc.addTransceiver('audio', {direction: 'recvonly'});
     return pc.createOffer().then(function(offer) {
@@ -60,10 +61,11 @@ function negotiate() {
             }
         });
     }).then(function() {
+        console.log("negotiate: local description set, calling server side offer")
         var offer = pc.localDescription;
         txtOfferSdp.textContent = offer.sdp;
         return fetch('/offer', {
-            body: JSON.stringify({
+            body: JSON.stringify({                                                                                                                                                                                 
                 sdp: offer.sdp,
                 type: offer.type,
             }),
@@ -73,8 +75,10 @@ function negotiate() {
             method: 'POST'
         });
     }).then(function(response) {
+        console.log("server side offer response received, calling answer")
         return response.json();
     }).then(function(answer) {
+        console.log("server side offer response received, calling calling setRemoteDescription")
         txtAnswerSdp.textContent = answer.sdp;
         return pc.setRemoteDescription(answer);
     }).catch(function(e) {
