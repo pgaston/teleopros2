@@ -84,8 +84,11 @@ The code below shows the image topic Isaac SIM emites - you'll need to change fo
 - this assumes you have a gscam_params.yaml file in the cfg directory
   change the /dev/videoX to be your webcam (for this example)
 
+  source install/setup.bash
 ros2 run gscam2 gscam_main --ros-args  --params-file src/gscam2/gscam_params.yaml -p camera_info_url:=file://$PWD/src/gscam2/cfg/my_camera.ini
 -or-
+
+source install/setup.bash
 ros2 launch teleopros2 teleGSCamera_launch.py
 
 

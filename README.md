@@ -35,6 +35,10 @@ cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
   ./scripts/run_dev.sh
 ```
 
+You may also need to install:
+- [realsense](https://github.com/IntelRealSense/realsense-ros)
+- In your /workspaces/isacc_ros-dev directory both [gscam](https://github.com/clydemcqueen/gscam2/tree/main) and [ros2_shared](https://github.com/ptrmu/ros2_shared)
+
 3. Add SSL certificates.   This is required for mobile.   This is the default.    To change the default set the 'ssl' parameter to false.
  
 - Create a 'certs' directory at the top level of teleopros2
