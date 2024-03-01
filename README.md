@@ -98,10 +98,21 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard
 ```
 I also have a customization of the 'simple room' with a jetbot.   This publishes images and accepts robot movement commands.
 
+7. Run/test with a GStreamer sourced camera, say a webcam or a CSI camera on the Jetson Orin Nano.
 
-## To do's
-- Performance enhancement.   Build a ROS2 node using deepstream to convert the image topic into a resized, recolored, h264 encoded set'o'bits using the GPU.   Not hard, but t.b.d.
-- Use on a real robot.   Turns out the original Nano is too old for the new NVidia docker setup, and the Orin Nano doesn't fit on, say the Jetbot.    Still building.
+Adjust your 'gscam_config' string in launch/teleGSCamera_lannch.py.   The current default is to use /dev/video6.
+
+To run
+```
+ros2 launch teleopros2 teleGSCamera_launch.py
+```
+and again, on your browser go to https://localhost:8080/
+
+
+## To do's (potentially)
+- Performance enhancement.   Use gstreamer to also create a h.264 compressed stream
+that can be used instead of the image topic.   This will utilize the GPU most effectively.   See [discussion](https://github.com/aiortc/aiortc/discussions/769)
+- Use on a real Jetson Orin Nano robot.   Turns out the original Nano is too old for the new NVidia docker setup, and the Orin Nano doesn't fit on, say the Jetbot.  (Different power needs, ...)   Still building...
 
 ## Useful links
 
