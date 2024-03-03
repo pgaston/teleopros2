@@ -84,7 +84,7 @@ The code below shows the image topic Isaac SIM emites - you'll need to change fo
 - this assumes you have a gscam_params.yaml file in the cfg directory
   change the /dev/videoX to be your webcam (for this example)
 
-  source install/setup.bash
+source install/setup.bash
 ros2 run gscam2 gscam_main --ros-args  --params-file src/gscam2/gscam_params.yaml -p camera_info_url:=file://$PWD/src/gscam2/cfg/my_camera.ini
 -or-
 
@@ -470,10 +470,6 @@ class WebRTCPubSub(Node):
         # subscribers
         logger.info("listening for images on: %s" % (argsimagetopic))
         print("listening for images on: %s" % (argsimagetopic))
-        print("listening for images on: %s" % (argsimagetopic))
-        print("listening for images on: %s" % (argsimagetopic))
-        print("listening for images on: %s" % (argsimagetopic))
-        print("listening for images on: %s" % (argsimagetopic))
 
         self.imageSubscription = self.create_subscription(Image,argsimagetopic,self.listener_image_callback,10)
         self.imageSubscription  # prevent unused variable warning
@@ -512,8 +508,7 @@ class WebRTCPubSub(Node):
     def listener_image_callback(self, image_message):
         cv_image = self.bridge.imgmsg_to_cv2(image_message, desired_encoding='passthrough')
         # Defer conversion till needed, seeing as we only use half of the images (15fps use, generated at 30fps)
-
-        print("caught image")
+        # print("caught image")
         curImg.setImg(cv_image)
 
     def json_pub(self,payload):        

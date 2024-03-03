@@ -7,8 +7,11 @@ ARG TARGET_ROS_DISTRO=humble
 RUN echo "Installing for aiortc, one upgrade, others required for aiortc"
 RUN PATH=$PATH:"/home/admin/.local/bin"
 RUN pip install pyopenssl --upgrade
-RUN pip install google-crc32c pyee pylibsrtp opencv-python natsort
+# opencv-python - this blows away SDK version - which has GStreamer
+RUN pip install google-crc32c pyee pylibsrtp natsort
 RUN pip install aiohttp aiortc
+# this allows 'jtop'
+RUN pip install jetson-stats
 
 RUN echo "DONE with teleopros2 extension, now gscam"
 
