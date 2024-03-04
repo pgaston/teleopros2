@@ -2,7 +2,9 @@
 ## for ROS2 alone, or via the NVidia docker setup for Jetson (Orin) Nano/x86
 
 The use case is for teleoperation of a ROS2 robot, providing:
-- teleop desktop - ready for further customization - it also provides tilt control on mobile devices
+- teleop control:
+  - view image from robot over internet
+  - control robot, using either controls on screen of tilt on mobile devices
 - efficient transport using WebRTC - both video and data
 - generally targeted at the NVidia stack, but not required.
 

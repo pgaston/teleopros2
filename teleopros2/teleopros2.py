@@ -205,12 +205,16 @@ class currentImage():
     def getImg(self):
         # print("getImg",self.ros2Image)
         if self.ros2Image is not None:
-            ## Conversion - perhaps this can be done on the GPU using NVidia stack on Jetson Orin...
+            # Note: currently GStreamer returns a 640x480x3 image in BGR format
+            # we could convert there to RGB - but convention (?) says to use internally in BGR
+ 
+            ## Conversion - BGR to RGB for nice display
             cv_image = cv2.cvtColor(self.ros2Image, cv2.COLOR_BGR2RGB)
+
             # check to see if need to resize ?
-            # print("ros image shape: ",cv_image.shape)
-            cv_image = cv2.resize(cv_image, (width, height))
-            # print("cv_image shape: ",cv_image.shape)
+            if cv_image.shape[0] != height or cv_image.shape[1] != width:
+                cv_image = cv2.resize(cv_image, (width, height))
+
             return cv_image
         else:
             return self.defaultImg

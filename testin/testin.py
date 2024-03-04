@@ -1,3 +1,7 @@
+'''
+This is for testing out GStreamer command lines...
+'''
+
 import cv2
 import numpy as np
 
