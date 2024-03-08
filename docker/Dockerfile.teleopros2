@@ -22,11 +22,24 @@ RUN apt-get install -y libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-
 
 # for Jetson only
 RUN echo "JETSON time - shouldn't hurt on x86"
-RUN sudo pip install adafruit-circuitpython-servokit
-RUN sudo pip install Jetson.GPIO
+# needed?
+# RUN sudo pip install adafruit-circuitpython-servokit
+# run motors
+RUN sudo pip install adafruit-circuitpython-motorkit
+# needed?
+# RUN sudo pip install Jetson.GPIO
+# for OLED display
+RUN sudo pip install adafruit-circuitpython-ssd1306
+#RUN sudo pip install adafruit-circuitpython-bme280
+# for  ip command - so stats can show local IP
+RUN sudo apt install iproute2 -y
+
 # this needs to be done on the host, prior to building docker image
-#sudo chmod +777 /dev/gpiochip0
-#sudo chmod +777 /dev/gpiochip1
+# sudo chmod +777 /dev/gpiochip0
+# sudo chmod +777 /dev/gpiochip1
+# sudo chmod +777 /dev/i2c-0
+# sudo chmod +777 /dev/i2c-1
+# sudo chmod +777 /dev/i2c-7
 RUN echo "JETSON done..."
 
 
