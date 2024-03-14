@@ -31,6 +31,8 @@ setup(
     entry_points={
         'console_scripts': [
             'teleopros2_node = teleopros2.teleopros2:main',
+            'jetbotStats = teleopros2.jetbotStats:main',
+            'jetbotMove = teleopros2.jetbotMove:main',
         ],
     },
 )

@@ -148,6 +148,8 @@ from geometry_msgs.msg import Twist
 ####################################
 
 # Parameters we support via ROS2
+argstwisttopic = None           # ROS2 topic for the incoming twist, (cmd_vel)
+argsjsontopic = None           # ROS2 topic for the publishing json messages, (teleoppub)
 argsimagetopic = None           # ROS2 topic for the incoming image, ()RealSense)
 argsssl= False                  # use SSL, (true)
 argscertfile = None             # (certs/server.cert)
@@ -156,7 +158,6 @@ argshost = None                 # (0.0.0.0)
 argsport = None                 # (8080) - note that Isaac SIM uses 8080, in with case, say use 8081
 argsfps = None                  # frames per second (15)
 argsverbose = False             # default logging verbosity (False - show Info, not Debug)
-
 
 
 height, width = 480, 640
@@ -434,14 +435,14 @@ threading.Timer(5, watchdog).start()
 # ROS2 - publish and subscribe
 ####################################
 
-jsonTopic = 'teleoppub'
-twistTopic = 'cmd_vel'
+#jsonTopic = 'teleoppub'
+# twistTopic = 'cmd_vel'
 
 # WebRTC node publish/subscribe
 class WebRTCPubSub(Node):
 
     def __init__(self):
-        super().__init__('pywebrtc')
+        super().__init__('teleopros2')
 
         # parameters
         # some common default topics for images...
@@ -450,6 +451,8 @@ class WebRTCPubSub(Node):
         kIsaacSimImageTopic = "/image_raw"
         kDefaultImageTopic = kRealSenseImageTopic
 
+        self.declare_parameter('twist-topic', 'cmd_vel')
+        self.declare_parameter('json-topic', 'teleoppub')
         self.declare_parameter('image-topic', kDefaultImageTopic)
         self.declare_parameter('ssl', True)
         self.declare_parameter('cert-file', 'certs/server.cert')
@@ -459,7 +462,9 @@ class WebRTCPubSub(Node):
         self.declare_parameter('fps', 15)           # max video update rate
         self.declare_parameter('verbose', False)
 
-        global argsimagetopic, argsssl, argscertfile, argskeyfile, argshost, argsport, argsfps, argsverbose
+        global argstwisttopic, argsjsontopic, argsimagetopic, argsssl, argscertfile, argskeyfile, argshost, argsport, argsfps, argsverbose
+        argstwisttopic = self.get_parameter('twist-topic').value
+        argsjsontopic = self.get_parameter('json-topic').value
         argsimagetopic = self.get_parameter('image-topic').value
         argsssl = self.get_parameter('ssl').value
         argscertfile = self.get_parameter('cert-file').value
@@ -483,8 +488,8 @@ class WebRTCPubSub(Node):
         self.subscription  # prevent unused variable warning
 
         # publishers
-        self.jPublisher_ = self.create_publisher(String, jsonTopic, 10)
-        self.twistPublisher_ = self.create_publisher(Twist, twistTopic, 10)
+        self.jPublisher_ = self.create_publisher(String, argsjsontopic, 10)
+        self.twistPublisher_ = self.create_publisher(Twist, argstwisttopic, 10)
 
         logger.debug('WebRTCPubSub initialized')
         

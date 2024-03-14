@@ -27,7 +27,7 @@ RUN echo "JETSON time - shouldn't hurt on x86"
 # run motors
 RUN sudo pip install adafruit-circuitpython-motorkit
 # needed?
-# RUN sudo pip install Jetson.GPIO
+RUN sudo pip install Jetson.GPIO
 # for OLED display
 RUN sudo pip install adafruit-circuitpython-ssd1306
 #RUN sudo pip install adafruit-circuitpython-bme280

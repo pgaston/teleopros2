@@ -114,6 +114,15 @@ ros2 launch teleopros2 teleGSCamera_launch.py
 ```
 and again, on your browser go to https://localhost:8080/
 
+## For Jetbot...
+
+8. Now for a Jetbot!
+(ROS - but interesting github - https://github.com/issaiass/jetbot_diff_drive)
+
+More ROS2 packages to install...
+sudo apt install ros-humble-ros2-control 
+sudo apt install ros-humble-ros2-controllers 
+
 
 ## To do's (potentially)
 - Performance enhancement.   Use gstreamer to also create a h.264 compressed stream
@@ -124,4 +133,14 @@ that can be used instead of the image topic.   This will utilize the GPU most ef
 
 - [Isaac ROS Common](https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_common)
 - [Isaac ROS Documentation](https://nvidia-isaac-ros.github.io/repositories_and_packages/isaac_ros_common/index.html) 
+
+## Other links
+-[linorobot project](https://github.com/linorobot/linorobot2)
+-[jetbot-ros2 project](https://github.com/jdgalviss/jetbot-ros2)
+
+
+
+
+
+https://control.ros.org/humble/doc/getting_started/getting_started.html
 

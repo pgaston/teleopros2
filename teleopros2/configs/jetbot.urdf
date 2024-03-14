@@ -1,0 +1,160 @@
+<?xml version="1.0" ?>
+<robot name="JetBot"  xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find jetbot_description)/urdf/jetbot.gazebo.xacro"/>
+
+  <property name="M_PI_2" value="1.570796327"/>
+
+  <link name="base_footprint"/>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0.0 0.0 0.010" rpy="0 0 0"/>
+  </joint>
+
+
+  <joint name="left_wheel_hinge" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_wheel"/>
+    <origin rpy="0       0       1.57079" xyz="0.03     0.05125  0.03"/>
+    <axis xyz="1  0  0"/>
+  </joint>
+
+  <transmission name="tran_jetbot_left_wheel_hinge">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="left_wheel_hinge">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor_left_wheel">
+      <mechanicalReduction>1</mechanicalReduction>
+      <hardwareInterface>VelocityJointInterface</hardwareInterface>
+    </actuator>
+  </transmission>
+
+  <joint name="right_wheel_hinge" type="continuous">
+    <parent link="base_link"/>
+    <child link="right_wheel"/>
+    <origin rpy="0       0       1.57079" xyz="0.03   -0.0595  0.03"/>
+    <axis xyz="1  0  0"/>
+  </joint>
+
+  <transmission name="tran_jetbot_right_wheel_hinge">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="right_wheel_hinge">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="motor_right_wheel">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <joint name="camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+    <origin rpy="0    0.25  0" xyz="0.065   0      0.0857"/>
+    <axis xyz="0.96891  0       0.2474"/>
+  </joint>
+
+  <link name="base_link">
+    <inertial>
+      <mass value="1.0"/>
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <inertia ixx="1e-3" ixy="0" ixz="0" iyy="1e-3" iyz="0" izz="1e-3"/>
+    </inertial>
+    <collision name="collision">
+      <origin rpy="1.57079  0       1.57079" xyz="0     0     0.043"/>
+      <geometry>
+        <mesh filename="package://jetbot_description/meshes-jetbot-ros/JetBot-v3-Chassis.dae" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <origin rpy="1.57079  0       1.57079" xyz="0     0     0.043"/>
+      <geometry>
+        <mesh filename="package://jetbot_description/meshes-jetbot-ros/JetBot-v3-Chassis.dae" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="left_wheel">
+    <inertial>
+      <mass value="0.1"/>
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <inertia ixx="1e-3" ixy="0" ixz="0" iyy="1e-3" iyz="0" izz="1e-3"/>
+    </inertial>
+    <collision name="collision">
+      <origin rpy="0  ${M_PI_2} 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.030" length="0.008"/>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <geometry>
+        <mesh filename="package://jetbot_description/meshes-jetbot-ros/JetBot-v3-Wheel.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="right_wheel">
+    <inertial>
+      <mass value="0.1"/>
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <inertia ixx="1e-3" ixy="0" ixz="0" iyy="1e-3" iyz="0" izz="1e-3"/>
+    </inertial>
+    <collision name="collision">
+      <origin rpy="0  ${M_PI_2} 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.030" length="0.008"/>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <geometry>
+        <mesh filename="package://jetbot_description/meshes-jetbot-ros/JetBot-v3-Wheel.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="camera_link">
+    <inertial>
+      <mass value="0.01"/>
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual name="visual">
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <geometry>
+        <box size="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="lidar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_link"/>
+    <origin rpy="0   0   3.14" xyz="0.0 -0.0058  0.127"/>
+    <axis xyz="0 0 0"/>
+  </joint>
+
+  <link name="lidar_link">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <collision name="collision">
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://jetbot_description/meshes/lidar-base.dae" scale="1.0 1.0 1.0"/>
+      </geometry>
+    </collision>
+    <visual name="visual">
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://jetbot_description/meshes/lidar-base.dae" scale="1.0 1.0 1.0"/>
+      </geometry>
+    </visual>
+  </link>
+
+
+</robot>
