@@ -10,17 +10,29 @@ RUN pip install pyopenssl --upgrade
 # opencv-python - this blows away SDK version - which has GStreamer
 RUN pip install google-crc32c pyee pylibsrtp natsort
 RUN pip install aiohttp aiortc
-# this allows 'jtop'
+# this allows 'jtop' on jetson
 RUN pip install jetson-stats
 
 RUN echo "DONE with teleopros2 extension, now gscam"
 
-RUN apt-get install -y libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
+RUN apt install -y libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
  gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools \
  gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio \
  libgstreamer-plugins-base1.0-dev
 
-# for Jetson only
+ # For controls - ros2_control and ros2_controllers (and other stuff to get demos to build...)
+RUN echo "now for ros_control"
+RUN apt update
+RUN apt install -y ros-humble-hardware-interface ros-humble-controller-interface \ 
+ ros-humble-realtime-tools ros-humble-transmission-interface dialog
+RUN apt install -y ros-humble-ros2-control ros-humble-ros2-controllers
+RUN apt install -y ros-humble-xacro
+# next two for demos
+RUN apt install -y dialog
+RUN apt install -y ros-humble-joint-state-publisher-gui
+
+
+# for Jetson only - though doesn't kill x86
 RUN echo "JETSON time - shouldn't hurt on x86"
 # needed?
 # RUN sudo pip install adafruit-circuitpython-servokit

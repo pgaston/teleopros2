@@ -1,2 +1,2 @@
--v /home/pg/repos:/repos
--v /home/pg/.ssh:/home/admin/.ssh
+-v $HOME/repos:/repos
+-v $HOME/.ssh:/home/admin/.ssh

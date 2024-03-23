@@ -49,9 +49,10 @@ then open your browser to https://localhost:8080
 to run as ROS2 node
 
 to start nvidia docker:
-
+************************************************************************
 cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
   ./scripts/run_dev.sh
+************************************************************************
 
 source install/setup.bash
 ros2 run teleopros2 teleopros2_node

@@ -143,4 +143,33 @@ that can be used instead of the image topic.   This will utilize the GPU most ef
 
 
 https://control.ros.org/humble/doc/getting_started/getting_started.html
+https://github.com/ros-controls/
+
+
+
+
+clone humble branch
+follow instructions - https://control.ros.org/master/doc/ros2_control_demos/doc/index.html#build-from-debian-packages
+
+VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+
+rm -rf src/ros2_control_demos
+rm -rf install/
+rm -rf build/
+
+cd src
+git clone https://github.com/ros-controls/ros2_control_demos -b humble
+cd ..
+rosdep update --rosdistro=$ROS_DISTRO
+sudo apt update
+rosdep install --from-paths ./ -i -y --rosdistro ${ROS_DISTRO}
+. /opt/ros/${ROS_DISTRO}/setup.sh
+colcon build --symlink-install
+
+
+
+source install/setup.bash
+ros2 launch ros2_control_demo_example_2 view_robot.launch.py
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
