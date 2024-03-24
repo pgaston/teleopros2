@@ -1,2 +1,4 @@
 -v $HOME/repos:/repos
 -v $HOME/.ssh:/home/admin/.ssh
+-v  /etc/localtime:/etc/localtime:ro 
+

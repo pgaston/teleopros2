@@ -20,16 +20,63 @@ RUN apt install -y libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-plug
  gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio \
  libgstreamer-plugins-base1.0-dev
 
- # For controls - ros2_control and ros2_controllers (and other stuff to get demos to build...)
+# For controls - ros2_control and ros2_controllers (and other stuff to get demos to build...)
+# turns out we need to compile ros2_control (at least) from source
 RUN echo "now for ros_control"
+# when to do this - why not now?
 RUN apt update
-RUN apt install -y ros-humble-hardware-interface ros-humble-controller-interface \ 
- ros-humble-realtime-tools ros-humble-transmission-interface dialog
+RUN apt upgrade -y
+
 RUN apt install -y ros-humble-ros2-control ros-humble-ros2-controllers
+# RUN apt install -y ros-humble-hardware-interface ros-humble-controller-interface \ 
+#  ros-humble-realtime-tools ros-humble-transmission-interface dialog
+
 RUN apt install -y ros-humble-xacro
 # next two for demos
 RUN apt install -y dialog
 RUN apt install -y ros-humble-joint-state-publisher-gui
+RUN apt install -y dialog
+RUN apt install -y ros-humble-ros2-control ros-humble-ros2-controllers
+
+
+
+# Seems like we need to install from source for ros-humble-ros2-control
+# - the apt version is not up to date w/ the latest ros2_control - a missing include file occurs elsewhere
+# so install from source it is for ros2_control
+
+# this requires the following to be installed - determined by trial and error...
+# RUN apt install -y ros-humble-transmission-interface ros-humble-realtime-tools ros-humble-control-toolbox
+
+RUN apt install -y ros-humble-joint-state-publisher-gui
+  
+# ??? for controller_manager
+# RUN apt install -y ros-humble-backward-ros
+
+
+# ?? XXXX   ros-humble-ros2-controllers   ???????
+# try this!   i.e., don't recompile all this from source...
+# RUN apt install -y ros-humble-ros2-controllers
+
+
+
+# remove ros-humble-hardware-interface ros-humble-controller-interface \
+# hmmmm
+# RUN apt install -y ros-humble-realtime-tools ros-humble-transmission-interface
+# RUN apt install -y ros-humble-ros2-controllers
+
+# turns out we need to compile ros2_control (at least) from source
+# also, along for the ride are ros-humble-hardware-interface ros-humble-controller-interface
+
+# RUN apt install -y ros-humble-hardware-interface ros-humble-controller-interface \ 
+#  ros-humble-realtime-tools ros-humble-transmission-interface
+# RUN apt install -y ros-humble-ros2-control ros-humble-ros2-controllers
+
+
+RUN apt install -y ros-humble-xacro
+# next two for demos
+RUN apt install -y dialog
+
+# RUN apt install -y ros-humble-joint-state-publisher-gui
 
 
 # for Jetson only - though doesn't kill x86
@@ -46,7 +93,7 @@ RUN sudo pip install adafruit-circuitpython-ssd1306
 # for  ip command - so stats can show local IP
 RUN sudo apt install iproute2 -y
 
-# this needs to be done on the host, prior to building docker image
+# this needs to be done on the Jetson host, prior to building docker image
 # sudo chmod +777 /dev/gpiochip0
 # sudo chmod +777 /dev/gpiochip1
 # sudo chmod +777 /dev/i2c-0

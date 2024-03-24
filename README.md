@@ -151,19 +151,97 @@ https://github.com/ros-controls/
 clone humble branch
 follow instructions - https://control.ros.org/master/doc/ros2_control_demos/doc/index.html#build-from-debian-packages
 
+
 VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
 
-rm -rf src/ros2_control_demos
+************************************************************************
+cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
+  ./scripts/run_dev.sh
+************************************************************************
+
+==> 
+
 rm -rf install/
 rm -rf build/
 
-cd src
+
+
+
+
+# rm -rf src/ros2_control_demos
+# ackermann_msgs
+
+
+==> (to verify it all builds, then run example 1 to ensure it 'works')
+     https://github.com/ros-controls/ros2_control_demos/blob/master/example_1/doc/userdoc.rst
+
+rm -rf install/
+rm -rf build/
+
+. /opt/ros/${ROS_DISTRO}/setup.sh
+colcon build --symlink-install
+
+==> run an example
+  tab 1:
+
+source install/setup.bash
+ros2 launch ros2_control_demo_example_1 view_robot.launch.py
+  tab 2:
+source /opt/ros/${ROS_DISTRO}/setup.bash
+ros2 run joint_state_publisher_gui joint_state_publisher_gui
+
+
+
+
+--> one or both...
+
 git clone https://github.com/ros-controls/ros2_control_demos -b humble
+
+# for now, throws error - missing file 
+# #include "hardware_interface/lexical_casts.hpp"
+# so deleted examples 2, 8, 14 
+# seems like the apt install sources haven't caught up yet w/ the github code
+# --> should fix itself over time
+
+# for build from source - btw, not working yet...
+git clone https://github.com/ros-controls/ros2_control.git -b humble
+git clone https://github.com/ros-controls/ros2_controllers.git -b humble
+git clone git@github.com:ros-controls/control_msgs.git -b humble
+git clone git@github.com:ros-controls/realtime_tools.git
+
+
 cd ..
 rosdep update --rosdistro=$ROS_DISTRO
 sudo apt update
+sudo apt upgrade
 rosdep install --from-paths ./ -i -y --rosdistro ${ROS_DISTRO}
+
+# must be some way to force building these first...
+
 . /opt/ros/${ROS_DISTRO}/setup.sh
+
+# NO - install from source
+# sudo apt install ros-humble-control-msgs
+
+==>
+
+colcon build --packages-select realtime_tools
+colcon build --packages-select control_msgs
+colcon build --packages-select ros2_control_test_assets
+colcon build --packages-select controller_manager_msgs
+colcon build --packages-select joint_limits
+colcon build --packages-select rqt_controller_manager
+colcon build --packages-select hardware_interface
+colcon build --packages-select hardware_interface_testing
+colcon build --packages-select controller_interface 
+colcon build --packages-select controller_manager
+colcon build --packages-select transmission_interface 
+colcon build --packages-select ros2controlcli 
+colcon build --packages-select ros2_control
+
+
+
+
 colcon build --symlink-install
 
 
@@ -172,4 +250,24 @@ source install/setup.bash
 ros2 launch ros2_control_demo_example_2 view_robot.launch.py
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+colcon build --symlink-install
+[1.807s] WARNING:colcon.colcon_core.package_selection:Some selected packages are already built in one or more underlay workspaces:
+  'controller_interface' is in: /workspaces/isaac_ros-dev/install/controller_interface, /opt/ros/humble
+  'hardware_interface' is in: /workspaces/isaac_ros-dev/install/hardware_interface, /opt/ros/humble
+  'controller_manager' is in: /workspaces/isaac_ros-dev/install/controller_manager
+  'ros2_control_test_assets' is in: /workspaces/isaac_ros-dev/install/ros2_control_test_assets
+If a package in a merged underlay workspace is overridden and it installs headers, then all packages in the overlay must sort their include directories by workspace order. Failure to do so may result in build failures or undefined behavior at run time.
+If the overridden package is used by another package in any underlay, then the overriding package in the overlay must be API and ABI compatible or undefined behavior at run time may occur.
 
+If you understand the risks and want to override a package anyways, add the following to the command line:
+  --allow-overriding controller_interface controller_manager hardware_interface ros2_control_test_assets
+
+
+colcon build --packages-select controller_manager_msgs joint_limits controller_interface transmission_interface controller_manager ros2controlcli
+
+- controller_manager_msgs
+- joint_limits
+- controller_interface
+- transmission_interface
+- controller_manager
+- ros2controlcli
