@@ -23,9 +23,10 @@ RUN apt install -y libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-plug
 # For controls - ros2_control and ros2_controllers (and other stuff to get demos to build...)
 # turns out we need to compile ros2_control (at least) from source
 RUN echo "now for ros_control"
-# when to do this - why not now?
+
 RUN apt update
-RUN apt upgrade -y
+# when to do this - why not now?   Oh, it doesn't work on x86 (did on arm64...)
+# RUN apt upgrade -y
 
 RUN apt install -y ros-humble-ros2-control ros-humble-ros2-controllers
 # RUN apt install -y ros-humble-hardware-interface ros-humble-controller-interface \ 
