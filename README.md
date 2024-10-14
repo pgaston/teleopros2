@@ -1,6 +1,8 @@
 # TeleOp on ROS2 using WebRTC 
 ## for ROS2 alone, or via the NVidia docker setup for Jetson (Orin) Nano/x86
 
+(Currently using Humble, migrating to Iron.)
+
 The use case is for teleoperation of a ROS2 robot, providing:
 - teleop control:
   - view image from robot over internet
