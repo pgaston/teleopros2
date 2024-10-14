@@ -47,7 +47,7 @@ You may also need to install:
 - Create a local server.certs and server.key file in this directory.   [Here is one approach.](https://deliciousbrains.com/ssl-certificate-authority-for-local-https-development/#how-it-works) .    *Tip - don't add a passphrase.*
 - (btw, I included a certs.zip that you can expand into a certs folder there.    Not secure in the slightest - but you can use to test mobile/twisting.   I can't include otherwise as it sets off a github security alert.)
 
-*Note - your browser will show this as insecure.*   Go to advanced / proceed anyway.   Exercise for the  to do this 'correctly'.
+*Note - your browser will show this as insecure.*   Go to advanced / proceed anyway.   Exercise for the user to do this 'correctly'.
 
 4. Build
 
