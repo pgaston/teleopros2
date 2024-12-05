@@ -436,7 +436,7 @@ threading.Timer(5, watchdog).start()
 # ROS2 - publish and subscribe
 ####################################
 
-#jsonTopic = 'teleoppub'
+jsonTopic = 'teleoppub'
 # twistTopic = 'cmd_vel'
 
 # WebRTC node publish/subscribe

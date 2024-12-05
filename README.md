@@ -1,14 +1,13 @@
 # TeleOp on ROS2 using WebRTC 
 ## for ROS2 alone, or via the NVidia docker setup for Jetson (Orin) Nano/x86
 
-(Currently using Humble, migrating to Iron.)
+(Currently using ROS@2 Humble, that seems to be the currently supported version by NVidia.)
 
 The use case is for teleoperation of a ROS2 robot, providing:
 - teleop control:
-  - view image from robot over internet
+  - view image from robot over internet (efficiently using WebRTC)
   - control robot, using either controls on screen of tilt on mobile devices
-- efficient transport using WebRTC - both video and data
-- generally targeted at the NVidia stack, but not required.
+- targeted at the NVidia Jetson Orin Nano stack, but not absolutely required.
 
 ![TeloOp Screenshots](https://github.com/pgaston/teleopros2/assets/3617755/0f7b2586-aba4-4f4a-a859-2769d794dad7)
 
@@ -18,30 +17,62 @@ Please see the [Medium article](https://medium.com/@peter.gaston/add-teleop-to-y
 
 ## Installation
 
-This works in either a 'standard' ROS2 environment or in the NVidia docker path -  [Developer Environment Setup](https://nvidia-isaac-ros.github.io/getting_started/dev_env_setup.html)    More specifically [Isaac ROS Docker Development Environment](https://nvidia-isaac-ros.github.io/repositories_and_packages/isaac_ros_common/index.html).    
+### Starting from scratch
 
-1. Clone this repository (on the host)
-cd ${ISAAC_ROS_WS}/src
-git clone git@github.com:pgaston/TeleOpROS2.git
+There are two platforms you can (should) support:
+- NVidia Jetson Orin Nano (or other, non tested).
+- x86 platform - this allows the use of Isaac Sim for software-in-the-loop simulation.
 
-2. Copy the following two files - this is for customizing the docker build process
-```
-${ISAAC_ROS_WS}/src/teleoprOS2/docker/.isaac_ros_common-config
-${ISAAC_ROS_WS}/src/teleoprOS2/docker/.isaac_ros_common-config
-```
-to the folder
-```
-${ISAAC_ROS_WS}/src/isaac_ros_common/scripts
-```
-after this, run_dev.sh should work.   This is how to run the 'standard' NVidia docker environment, with my additions, per #2 above.
+While this works in a 'standard' ROS2 Humble environment, the supported approach follows 
+the NVidia suggested approach of using a Docker environment.   Follow:
+- [Developer Environment Setup](https://nvidia-isaac-ros.github.io/getting_started/dev_env_setup.html)    
+- Which is part of the broader... [Isaac ROS Docker Development Environment](https://nvidia-isaac-ros.github.io/repositories_and_packages/isaac_ros_common/index.html)
+
+Testing so far:
+- Docker environment launches successfully.   Note that we customize this in the next step.
 ```
 cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
   ./scripts/run_dev.sh
 ```
 
-You may also need to install:
-- [realsense](https://github.com/IntelRealSense/realsense-ros)
-- In your /workspaces/isacc_ros-dev directory both [gscam](https://github.com/clydemcqueen/gscam2/tree/main) and [ros2_shared](https://github.com/ptrmu/ros2_shared)
+
+### On to TeleOpROS2
+
+1. Clone this repository (on the host)
+```
+cd ${ISAAC_ROS_WS}/src
+git clone git@github.com:pgaston/TeleOpROS2.git
+```
+
+2. And, assuming you're using a Realsense camera:
+- [NVidia realsense setup]https://nvidia-isaac-ros.github.io/getting_started/hardware_setup/sensors/realsense_setup.html
+- the realsense site is - [realsense](https://github.com/IntelRealSense/realsense-ros)
+- test, using
+```
+realsense-viewer
+```
+
+
+3. Copy all three of the files in the folder - this is for customizing the docker build process
+```
+${ISAAC_ROS_WS}/src/teleoprOS2/docker/.isaac_ros_common-config
+${ISAAC_ROS_WS}/src/teleoprOS2/docker/.isaac_ros_dev-dockerargs
+${ISAAC_ROS_WS}/src/teleoprOS2/docker/Dockerfile.teleopros2
+```
+to the folder
+```
+${ISAAC_ROS_WS}/src/isaac_ros_common/scripts
+```
+after this, run_dev.sh should work for our world.   This is how to run the 'standard' NVidia docker environment, with my additions, per #2 above.
+```
+cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
+  ./scripts/run_dev.sh
+```
+
+4. Additional requirements include:
+
+- In your /workspaces/isaac_ros-dev directory both [gscam](https://github.com/clydemcqueen/gscam2/tree/main) and [ros2_shared](https://github.com/ptrmu/ros2_shared)
+
 
 3. Add SSL certificates.   This is required for mobile.   This is the default.    To change the default set the 'ssl' parameter to false.
  

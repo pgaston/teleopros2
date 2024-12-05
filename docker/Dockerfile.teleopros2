@@ -8,8 +8,9 @@ RUN echo "Installing for aiortc, one upgrade, others required for aiortc"
 RUN PATH=$PATH:"/home/admin/.local/bin"
 RUN pip install pyopenssl --upgrade
 # opencv-python - this blows away SDK version - which has GStreamer
-RUN pip install google-crc32c pyee pylibsrtp natsort
-RUN pip install aiohttp aiortc
+RUN pip install google-crc32c pyee pylibsrtp natsort 
+# yarl multidict frozenlist 
+RUN pip install aiohttp[speedups] aiortc
 # this allows 'jtop' on jetson
 RUN pip install jetson-stats
 
@@ -102,4 +103,8 @@ RUN sudo apt install iproute2 -y
 # sudo chmod +777 /dev/i2c-7
 RUN echo "JETSON done..."
 
+# https://robotics.stackexchange.com/questions/104326/colcon-build-on-ros2-humble-outputs-listing-git-files-failed-pretending-there
+RUN echo "test - if setuptools-scm is installed, remove ...  sudo pip3 uninstall setuptools-scm "
+RUN pip3 list | grep setuptools
+RUN echo "done"
 
