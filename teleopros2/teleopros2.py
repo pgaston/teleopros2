@@ -1,11 +1,18 @@
 '''
-*Note* - for use over the internet (last test!), using STUN seems to be required.
+To do's:
+ - Physically separate the Web server from WebRTC (this code) on bot
+    - Allows usage of web site even when disconnected from bot
+ - Better object architecture on web server allowing customization/enhancement
+
+**************************
+
+*Note* - for use over the internet STUN seems to be required.
 
 teleopros2 - Browser interface to ROS2 robot
  - Web server - provides simple page with video and robot movement controls
  - Stream video back using WebRTC (thanks to aiortc)
  - Data channel - can send/receive JSON messages which are converted to/from ROS2 messages
-   (yes, ros2-web-bridge exists - this simplifies things for me)
+   (yes, ros2-web-bridge exists - integrating here simplifies things)
  - Focused on supporting the NVidia stack - Jetson (Orin) Nano, Isaac Sim (for simulation)
    (will work elsewhere w/ some modifications)
  - Simplyfing assumptions - to be validated or changed over time.
@@ -24,11 +31,15 @@ Open issues:
            The NVidia stack can do this, but it's not integrated into this code stack.   
            Worth looking into at some point.
          - Python - heck, the simplicity and robustness of aiortc have me sold.
- - https - throws up warning to user given the lack of a valid certificate.   Oh well. 
-         - also aiortc shows a couple of deprecation warnings around ssl - ignore for now...
+ - https - throws up warning to user given the lack of a valid certificate.  
+    - self-signed certificate is fine for local use, but not for general use.
+        - create true certificate - https://letsencrypt.org/
+        - use duckdns/other for dynamic DNS
+    - also aiortc shows a couple of deprecation warnings around ssl - ignore for now...
  - logging - currently using a non ROS2 logger - hence logging doesn't show up when running as a ROS2 node.
            - for now, debug using 'python3 teleopros2.py'
  - watchdog - periodic message each way, but not sure what functionality this is adding at present - leaving it in
+
 
 Limitations:
  - ROS2, Python, (NVidia stack)
@@ -38,10 +49,20 @@ Limitations:
 Requires https for remote access for mobile tilt.   This is turned on by default - you can always run http as desired.
 
 Create your own local certificate/key and place in the certs directory.   
-Google, or see https://deliciousbrains.com/ssl-certificate-authority-for-local-https-development/#how-it-works
+Google, or see https://deliciousbrains.com/ssl-certificate-authority-for-local-https-development/#how-it-
+This throws security warnings when opening in a browser, but it's a start.   For real use, get a real certificate which 
+requires a real domain name.   
+
+One way to do this correctly:
+    - duckdns.org - free dynamic DNS - get a domain name
+    - using apache...  https://certbot.eff.org/, https://letsencrypt.org/
+
+***************************
 
 to run as python only...
 cd ~/workspaces/isaac_ros-dev/src/TeleOpROS2/teleopros2
+
+cd ${ISAAC_ROS_WS}/src/TeleOpROS2/teleopros2
 python3 teleopros2.py
 
 then open your browser to https://localhost:8080
@@ -458,6 +479,8 @@ class WebRTCPubSub(Node):
         self.declare_parameter('ssl', True)
         self.declare_parameter('cert-file', 'certs/server.cert')
         self.declare_parameter('key-file', 'certs/server.key')
+        # self.declare_parameter('cert-file', 'certs/test.cert')
+        # self.declare_parameter('key-file', 'certs/test.key')        
         self.declare_parameter('host', HOST_IP)
         self.declare_parameter('port', 8080)      # Isaac SIM takes 8080...   so in that case use 8081
         self.declare_parameter('fps', 15)           # max video update rate

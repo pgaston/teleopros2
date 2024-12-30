@@ -106,5 +106,7 @@ RUN echo "JETSON done..."
 # https://robotics.stackexchange.com/questions/104326/colcon-build-on-ros2-humble-outputs-listing-git-files-failed-pretending-there
 RUN echo "test - if setuptools-scm is installed, remove ...  sudo pip3 uninstall setuptools-scm "
 RUN pip3 list | grep setuptools
+RUN echo "now remove setuptools-scm"
+RUN python3 -m pip uninstall setuptools-scm -y
+# RUN sudo pip uninstall setuptools-scm
 RUN echo "done"
-

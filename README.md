@@ -1,3 +1,4 @@
+
 # TeleOp on ROS2 using WebRTC 
 ## for ROS2 alone, or via the NVidia docker setup for Jetson (Orin) Nano/x86
 
@@ -80,7 +81,7 @@ cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
 - Create a local server.certs and server.key file in this directory.   [Here is one approach.](https://deliciousbrains.com/ssl-certificate-authority-for-local-https-development/#how-it-works) .    *Tip - don't add a passphrase.*
 - (btw, I included a certs.zip that you can expand into a certs folder there.    Not secure in the slightest - but you can use to test mobile/twisting.   I can't include otherwise as it sets off a github security alert.)
 
-*Note - your browser will show this as insecure.*   Go to advanced / proceed anyway.   Exercise for the user to do this 'correctly'.
+*Note - your browser will show this as insecure.*   Go to advanced / proceed anyway.   Exercise for the user to do this 'correctly'.   (hint - need domain to get a cert - afraid.org, letsencrypt.org - or perhaps google, dynu.com, others)
 
 4. Build
 
@@ -104,6 +105,7 @@ You can then browse to the following page with your browser:
 http://127.0.0.1:8080
 or, for the secure version (default)
 https://127.0.0.1:8080
+https://localhost:8080
 
 
 If you have a realsense installed, run in another terminal (do the run_dev.sh thing to get into the same docker)
@@ -304,3 +306,21 @@ colcon build --packages-select controller_manager_msgs joint_limits controller_i
 - transmission_interface
 - controller_manager
 - ros2controlcli
+
+
+# Getting an ssl cert
+
+Current path:
+- use Apache
+- add in certbot
+- get ssl cert
+- move to teleopros2 folder
+- !!
+
+https://certbot.eff.org/
+https://letsencrypt.org/
+
+
+
+
+
