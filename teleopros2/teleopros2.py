@@ -1,7 +1,14 @@
 '''
 To do's:
+ - get to work, again
+ - then w/ Isaac SIM
+ - add https certificate (?)
+
  - Physically separate the Web server from WebRTC (this code) on bot
     - Allows usage of web site even when disconnected from bot
+    - May not need https for WebRTC (?)
+
+ - Python portal-esque framework for the web server
  - Better object architecture on web server allowing customization/enhancement
 
 **************************
@@ -468,9 +475,9 @@ class WebRTCPubSub(Node):
 
         # parameters
         # some common default topics for images...
-        kRealSenseImageTopic = "/color/image_raw"
-        kIsaacSimImageTopic = "/front/stereo_camera/left/rgb"
-        kIsaacSimImageTopic = "/image_raw"
+        kRealSenseImageTopic = "/camera/color/image_raw"    # 1/14/2024 on desktop
+        # kIsaacSimImageTopic = "/front/stereo_camera/left/rgb"
+        # kIsaacSimImageTopic = "/image_raw"
         kDefaultImageTopic = kRealSenseImageTopic
 
         self.declare_parameter('twist-topic', 'cmd_vel')
