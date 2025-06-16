@@ -25,44 +25,41 @@ There are two platforms you can (should) support:
 - x86 platform - this allows the use of Isaac Sim for software-in-the-loop simulation.
 
 While this works in a 'standard' ROS2 Humble environment, the supported approach follows 
-the NVidia suggested approach of using a Docker environment.   Follow:
+the NVidia suggested approach of using a Docker environment.   
+
+1. Follow: (hint, very carefully follow instructions...)
 - [Developer Environment Setup](https://nvidia-isaac-ros.github.io/getting_started/dev_env_setup.html)    
 - Which is part of the broader... [Isaac ROS Docker Development Environment](https://nvidia-isaac-ros.github.io/repositories_and_packages/isaac_ros_common/index.html)
 
-Testing so far:
+Testing:
 - Docker environment launches successfully.   Note that we customize this in the next step.
 ```
 cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
   ./scripts/run_dev.sh
 ```
 
+2. And, assuming you're using a Realsense camera - follow the instructions in [Hardware setup / sensors setup / Realsense](https://nvidia-isaac-ros.github.io/getting_started/hardware_setup/sensors/realsense_setup.html).    For other sensors, minor mods needed (probably.)
+
+Testing:  Run this in the docker built environment.
+```
+realsense-viewer
+```
 
 ### On to TeleOpROS2
 
-1. Clone this repository (on the host)
+3. Clone this repository (on the host)
 ```
 cd ${ISAAC_ROS_WS}/src
 git clone git@github.com:pgaston/TeleOpROS2.git
 ```
 
-2. And, assuming you're using a Realsense camera:
-- [NVidia realsense setup]https://nvidia-isaac-ros.github.io/getting_started/hardware_setup/sensors/realsense_setup.html
-- the realsense site is - [realsense](https://github.com/IntelRealSense/realsense-ros)
-- test, using
+4. Copy all three of the files in the 'docker' folder - this is for customizing the [docker build process](https://nvidia-isaac-ros.github.io/concepts/docker_devenv/index.html#development-environment)
 ```
-realsense-viewer
-```
-
-
-3. Copy all three of the files in the folder - this is for customizing the docker build process
-```
-${ISAAC_ROS_WS}/src/teleoprOS2/docker/.isaac_ros_common-config
-${ISAAC_ROS_WS}/src/teleoprOS2/docker/.isaac_ros_dev-dockerargs
-${ISAAC_ROS_WS}/src/teleoprOS2/docker/Dockerfile.teleopros2
-```
-to the folder
-```
-${ISAAC_ROS_WS}/src/isaac_ros_common/scripts
+cd ${ISAAC_ROS_WS}/src/isaac_ros_common/
+mv scripts/.isaac_ros_common-config scripts/.isaac_ros_common-config-Realsense-copy
+cp ${ISAAC_ROS_WS}/src/teleoprOS2/docker/.isaac_ros_common-config scripts/
+cp ${ISAAC_ROS_WS}/src/teleoprOS2/docker/.isaac_ros_dev-dockerargs scripts/
+cp ${ISAAC_ROS_WS}/src/teleoprOS2/docker/Dockerfile.teleopros2 docker/
 ```
 after this, run_dev.sh should work for our world.   This is how to run the 'standard' NVidia docker environment, with my additions, per #2 above.
 ```
@@ -70,7 +67,10 @@ cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
   ./scripts/run_dev.sh
 ```
 
-4. Additional requirements include:
+Testing:   docker build works!
+
+
+5. Additional requirements include:
 
 - In your /workspaces/isaac_ros-dev directory both [gscam](https://github.com/clydemcqueen/gscam2/tree/main) and [ros2_shared](https://github.com/ptrmu/ros2_shared)
 
