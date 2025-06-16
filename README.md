@@ -53,7 +53,7 @@ cd ${ISAAC_ROS_WS}/src
 git clone git@github.com:pgaston/TeleOpROS2.git
 ```
 
-4. Copy all three of the files in the 'docker' folder - this is for customizing the [docker build process](https://nvidia-isaac-ros.github.io/concepts/docker_devenv/index.html#development-environment)
+4. Copy all three of the files in the 'docker' folder to their place in isaac_ros_common - this is for customizing the [docker build process](https://nvidia-isaac-ros.github.io/concepts/docker_devenv/index.html#development-environment)
 ```
 cd ${ISAAC_ROS_WS}/src/isaac_ros_common/
 mv scripts/.isaac_ros_common-config scripts/.isaac_ros_common-config-Realsense-copy
@@ -72,7 +72,7 @@ Testing:   docker build works!
 
 5. Additional requirements include:
 
-- In your /workspaces/isaac_ros-dev directory both [gscam](https://github.com/clydemcqueen/gscam2/tree/main) and [ros2_shared](https://github.com/ptrmu/ros2_shared)
+- In your /workspaces/isaac_ros-dev/src directory git clone both [gscam](https://github.com/clydemcqueen/gscam2/tree/main) and [ros2_shared](https://github.com/ptrmu/ros2_shared)
 
 
 3. Add SSL certificates.   This is required for mobile.   This is the default.    To change the default set the 'ssl' parameter to false.
