@@ -67,8 +67,6 @@ One way to do this correctly:
 ***************************
 
 to run as python only...
-cd ~/workspaces/isaac_ros-dev/src/TeleOpROS2/teleopros2
-
 cd ${ISAAC_ROS_WS}/src/TeleOpROS2/teleopros2
 python3 teleopros2.py
 
@@ -233,7 +231,7 @@ class currentImage():
         self.ros2Image = ros2Image
 
     def getImg(self):
-        # print("getImg",self.ros2Image)
+        print("getImg",self.ros2Image)    ## !!!!!!!!!!!!!!!!!!!!!!!!!!!!
         if self.ros2Image is not None:
             # Note: currently GStreamer returns a 640x480x3 image in BGR format
             # we could convert there to RGB - but convention (?) says to use internally in BGR
@@ -476,6 +474,7 @@ class WebRTCPubSub(Node):
         # parameters
         # some common default topics for images...
         kRealSenseImageTopic = "/camera/color/image_raw"    # 1/14/2024 on desktop
+        kRealSenseImageTopic = "/color/image_raw"    # 6/18/2025 on desktop
         # kIsaacSimImageTopic = "/front/stereo_camera/left/rgb"
         # kIsaacSimImageTopic = "/image_raw"
         kDefaultImageTopic = kRealSenseImageTopic

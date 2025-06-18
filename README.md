@@ -20,14 +20,16 @@ Please see the [Medium article](https://medium.com/@peter.gaston/add-teleop-to-y
 
 ### Starting from scratch
 
+(Update - 6/18/2025 - rebuilt both platforms from scratch.  Updated instructions.   Hint - follow NVidia instructions very carefully!)
+
 There are two platforms you can (should) support:
 - NVidia Jetson Orin Nano (or other, non tested).
 - x86 platform - this allows the use of Isaac Sim for software-in-the-loop simulation.
 
 While this works in a 'standard' ROS2 Humble environment, the supported approach follows 
-the NVidia suggested approach of using a Docker environment.   
+the NVidia suggested approach of using their Docker environment.   
 
-1. Follow: (hint, very carefully follow instructions...)
+1. Follow:
 - [Developer Environment Setup](https://nvidia-isaac-ros.github.io/getting_started/dev_env_setup.html)    
 - Which is part of the broader... [Isaac ROS Docker Development Environment](https://nvidia-isaac-ros.github.io/repositories_and_packages/isaac_ros_common/index.html)
 
@@ -69,23 +71,41 @@ cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
 
 Testing:   docker build works!
 
+and, from inside the docker, do a full build.
+```
+cd /workspaces/isaac_ros-dev
+colcon build
+```
+
 
 5. Additional requirements include:
 
 - In your /workspaces/isaac_ros-dev/src directory git clone both [gscam](https://github.com/clydemcqueen/gscam2/tree/main) and [ros2_shared](https://github.com/ptrmu/ros2_shared)
+```
+cd ${ISAAC_ROS_WS}/src
+git clone git@github.com:clydemcqueen/gscam2.git
+git clone git@github.com:ptrmu/ros2_shared.git
+```
+
+and, from inside the docker, do a full build.
+```
+cd /workspaces/isaac_ros-dev
+colcon build
+```
 
 
-3. Add SSL certificates.   This is required for mobile.   This is the default.    To change the default set the 'ssl' parameter to false.
+6. Add SSL certificates.   This is required for mobile.   This is the default.    To change the default set the 'ssl' parameter to false.
  
 - Create a 'certs' directory at the top level of teleopros2
 - Create a local server.certs and server.key file in this directory.   [Here is one approach.](https://deliciousbrains.com/ssl-certificate-authority-for-local-https-development/#how-it-works) .    *Tip - don't add a passphrase.*
 - (btw, I included a certs.zip that you can expand into a certs folder there.    Not secure in the slightest - but you can use to test mobile/twisting.   I can't include otherwise as it sets off a github security alert.)
 
-*Note - your browser will show this as insecure.*   Go to advanced / proceed anyway.   Exercise for the user to do this 'correctly'.   (hint - need domain to get a cert - afraid.org, letsencrypt.org - or perhaps google, dynu.com, others)
+*Note - your browser will show this as insecure.*   Go to advanced / proceed anyway.   Exercise for the user to do this 'correctly'.   Just pay - or search for how to get for free...
 
-4. Build
 
-Build (in the docker)
+7. Build
+
+Build (in the docker) - use symlink generally from here on out - this lets the src python code be used...
 ```
 cd /workspaces/isaac_ros-dev
 colcon build --symlink-install --packages-select teleopros2
@@ -94,7 +114,7 @@ Run to test.   Once you click `Connect` the server will send video from the ROS2
 browser.   The image shown in this case will indicate it is not receiving ROS2 image messages, since you aren't providing any, yet.
 
 
-5. Run/test with realsense camera
+8. Run/test with realsense camera
 ```
 source install/setup.bash
 ros2 run teleopros2 teleopros2_node
@@ -120,7 +140,7 @@ ros2 launch teleopros2 teleRSCamera_launch.py
 
 ** voila - WebRTC showing your realsense image **
 
-6. Run/test with NVidia Isaac sim.   [Web page](https://nvidia-isaac-ros.github.io/concepts/scene_reconstruction/nvblox/tutorials/tutorial_isaac_sim.html)
+9. Run/test with NVidia Isaac sim.   [Web page](https://nvidia-isaac-ros.github.io/concepts/scene_reconstruction/nvblox/tutorials/tutorial_isaac_sim.html)
 
 
 Start Isaac sim [per directions](https://nvidia-isaac-ros.github.io/concepts/scene_reconstruction/nvblox/tutorials/tutorial_isaac_sim.html) .    BTW, I need to go to http://localhost:3080/ to restart all services (e.g., Nucleus).
