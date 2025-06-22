@@ -57,11 +57,11 @@ git clone git@github.com:pgaston/TeleOpROS2.git
 
 4. Copy all three of the files in the 'docker' folder to their place in isaac_ros_common - this is for customizing the [docker build process](https://nvidia-isaac-ros.github.io/concepts/docker_devenv/index.html#development-environment)
 ```
-cd ${ISAAC_ROS_WS}/src/isaac_ros_common/
-mv scripts/.isaac_ros_common-config scripts/.isaac_ros_common-config-Realsense-copy
-cp ${ISAAC_ROS_WS}/src/teleoprOS2/docker/.isaac_ros_common-config scripts/
-cp ${ISAAC_ROS_WS}/src/teleoprOS2/docker/.isaac_ros_dev-dockerargs scripts/
-cp ${ISAAC_ROS_WS}/src/teleoprOS2/docker/Dockerfile.teleopros2 docker/
+cd ${ISAAC_ROS_WS}/src/
+mv isaac_ros_common/scripts/.isaac_ros_common-config scripts/.isaac_ros_common-config-Realsense-copy
+cp TeleOpROS2/docker/.isaac_ros_common-config isaac_ros_common/scripts/
+cp TeleOpROS2/docker/.isaac_ros_dev-dockerargs isaac_ros_common/scripts/
+cp TeleOpROS2/docker/Dockerfile.teleopros2 isaac_ros_common/docker/
 ```
 after this, run_dev.sh should work for our world.   This is how to run the 'standard' NVidia docker environment, with my additions, per #2 above.
 ```
