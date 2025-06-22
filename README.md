@@ -20,11 +20,11 @@ Please see the [Medium article](https://medium.com/@peter.gaston/add-teleop-to-y
 
 ### Starting from scratch
 
-(Update - 6/18/2025 - rebuilt both platforms from scratch.  Updated instructions.   Hint - follow NVidia instructions very carefully!)
+(Update - 6/21/2025 - rebuilt both platforms -x86 and Orin Nano - from scratch.  Updated instructions.   Hint - follow NVidia instructions very carefully!)
 
 There are two platforms you can (should) support:
-- NVidia Jetson Orin Nano (or other, non tested).
-- x86 platform - this allows the use of Isaac Sim for software-in-the-loop simulation.
+- NVidia Jetson Orin Nano (or other, non tested).   Current version is for Jetpack 6.2 w/ the software performance update.
+- x86 platform (Ubuntu 22) - this allows the use of Isaac Sim for software-in-the-loop simulation.
 
 While this works in a 'standard' ROS2 Humble environment, the supported approach follows 
 the NVidia suggested approach of using their Docker environment.   
