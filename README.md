@@ -80,6 +80,17 @@ colcon build
 
 5. Additional requirements include:
 
+F'or the Jetson Orin Nano, run the following, outside the docker environment.    This is to start gaining access to the hardware of the robot, eh?
+```
+sudo chmod +777 /dev/gpiochip0 /dev/gpiochip1 /dev/i2c-0 /dev/i2c-1 /dev/i2c-7
+```
+# this needs to be done on the Jetson host, prior to building docker image
+# sudo chmod +777 /dev/gpiochip0
+# sudo chmod +777 /dev/gpiochip1
+# sudo chmod +777 /dev/i2c-0
+# sudo chmod +777 /dev/i2c-1
+# sudo chmod +777 /dev/i2c-7
+
 - In your /workspaces/isaac_ros-dev/src directory git clone both [gscam](https://github.com/clydemcqueen/gscam2/tree/main) and [ros2_shared](https://github.com/ptrmu/ros2_shared)
 ```
 cd ${ISAAC_ROS_WS}/src
@@ -92,6 +103,8 @@ and, from inside the docker, do a full build.
 cd /workspaces/isaac_ros-dev
 colcon build
 ```
+
+
 
 
 6. Add SSL certificates.   This is required for mobile.   This is the default.    To change the default set the 'ssl' parameter to false.

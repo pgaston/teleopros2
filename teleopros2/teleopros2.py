@@ -473,8 +473,8 @@ class WebRTCPubSub(Node):
 
         # parameters
         # some common default topics for images...
-        kRealSenseImageTopic = "/camera/color/image_raw"    # 1/14/2024 on desktop
-        kRealSenseImageTopic = "/color/image_raw"    # 6/18/2025 on desktop
+        kRealSenseImageTopic = "/camera/color/image_raw"    # 6/24/2025 on jetson
+        # kRealSenseImageTopic = "/color/image_raw"    # 6/18/2025 on desktop
         # kIsaacSimImageTopic = "/front/stereo_camera/left/rgb"
         # kIsaacSimImageTopic = "/image_raw"
         kDefaultImageTopic = kRealSenseImageTopic
@@ -604,6 +604,8 @@ def main():
 
     import warnings
     warnings.filterwarnings("ignore")       # , category=DeprecationWarning)
+
+    # print("Starting WebRTC server on %s:%d" % (argshost, argsport))
 
     app = web.Application()
     app.on_shutdown.append(on_shutdown)
