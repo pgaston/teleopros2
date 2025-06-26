@@ -80,16 +80,10 @@ colcon build
 
 5. Additional requirements include:
 
-F'or the Jetson Orin Nano, run the following, outside the docker environment.    This is to start gaining access to the hardware of the robot, eh?
+For the Jetson Orin Nano, run the following, outside the docker environment.    This allows access to the hardware of the robot. (Your situation may vary.)
 ```
 sudo chmod +777 /dev/gpiochip0 /dev/gpiochip1 /dev/i2c-0 /dev/i2c-1 /dev/i2c-7
 ```
-# this needs to be done on the Jetson host, prior to building docker image
-# sudo chmod +777 /dev/gpiochip0
-# sudo chmod +777 /dev/gpiochip1
-# sudo chmod +777 /dev/i2c-0
-# sudo chmod +777 /dev/i2c-1
-# sudo chmod +777 /dev/i2c-7
 
 - In your /workspaces/isaac_ros-dev/src directory git clone both [gscam](https://github.com/clydemcqueen/gscam2/tree/main) and [ros2_shared](https://github.com/ptrmu/ros2_shared)
 ```
@@ -104,9 +98,6 @@ cd /workspaces/isaac_ros-dev
 colcon build
 ```
 
-
-
-
 6. Add SSL certificates.   This is required for mobile.   This is the default.    To change the default set the 'ssl' parameter to false.
  
 - Create a 'certs' directory at the top level of teleopros2
@@ -118,7 +109,7 @@ colcon build
 
 7. Build
 
-Build (in the docker) - use symlink generally from here on out - this lets the src python code be used...
+Build (in the docker) - use symlink generally from here on out - this lets the src python code be used - greatly speeds up debugging...
 ```
 cd /workspaces/isaac_ros-dev
 colcon build --symlink-install --packages-select teleopros2
@@ -187,9 +178,7 @@ and again, on your browser go to https://localhost:8080/
 8. Now for a Jetbot!
 (ROS - but interesting github - https://github.com/issaiass/jetbot_diff_drive)
 
-More ROS2 packages to install...
-sudo apt install ros-humble-ros2-control 
-sudo apt install ros-humble-ros2-controllers 
+
 
 
 ## To do's (potentially)
