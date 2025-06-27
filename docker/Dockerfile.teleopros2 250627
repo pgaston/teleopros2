@@ -1,23 +1,20 @@
-ARG BASE_IMAGE=ubuntu:22.04
+ARG BASE_IMAGE
 FROM ${BASE_IMAGE}
-# ARG BASE_IMAGE
-# FROM ${BASE_IMAGE}
 
 ARG TARGET_ROS_DISTRO=humble
 
 # pywebrtc - Installs/updates needed to get aiortc to work
-#RUN echo "Installing for aiortc, one upgrade, others required for aiortc"
-#RUN PATH=$PATH:"~/.local/bin"
+RUN echo "Installing for aiortc, one upgrade, others required for aiortc"
+RUN PATH=$PATH:"/home/admin/.local/bin"
 RUN pip install pyopenssl --upgrade
 # opencv-python - this blows away SDK version - which has GStreamer
 RUN pip install google-crc32c pyee pylibsrtp natsort 
-
 # yarl multidict frozenlist 
 RUN pip install aiohttp[speedups] aiortc
 # this allows 'jtop' on jetson
 RUN pip install jetson-stats
 
-#RUN echo "DONE with teleopros2 extension, now gscam"
+RUN echo "DONE with teleopros2 extension, now gscam"
 
 RUN apt install -y libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
  gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools \
@@ -26,33 +23,22 @@ RUN apt install -y libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-plug
 
 # For controls - ros2_control and ros2_controllers (and other stuff to get demos to build...)
 # turns out we need to compile ros2_control (at least) from source
-#RUN echo "now for ros_control"
+RUN echo "now for ros_control"
 
 RUN apt update
 # when to do this - why not now?   Oh, it doesn't work on x86 (did on arm64...)
 # RUN apt upgrade -y
 
-RUN apt install -y 
+RUN apt install -y ros-humble-ros2-control ros-humble-ros2-controllers
+# RUN apt install -y ros-humble-hardware-interface ros-humble-controller-interface \ 
+#  ros-humble-realtime-tools ros-humble-transmission-interface dialog
 
-RUN apt install -y dialog \
-    ros-humble-xacro \
-    ros-humble-joint-state-publisher-gui \
-    ros-humble-ros2-control \
-    ros-humble-ros2-controllers \
-    ros-humble-joint-state-publisher-gui \
-    ros-humble-xacro
-
-
-#     ros-humble-robot-state-publisher \\
-#     ros-humble-joint-state-publisher \\
-#     ros-humble-controller-manager \\
-#     ros-humble-controller-interface \\
-#     ros-humble-realtime-tools \\
-#     ros-humble-transmission-interface
-
-# RUN apt install -y ros-humble-joint-state-publisher-gui
-# RUN apt install -y dialog
-# RUN apt install -y ros-humble-ros2-control ros-humble-ros2-controllers
+RUN apt install -y ros-humble-xacro
+# next two for demos
+RUN apt install -y dialog
+RUN apt install -y ros-humble-joint-state-publisher-gui
+RUN apt install -y dialog
+RUN apt install -y ros-humble-ros2-control ros-humble-ros2-controllers
 
 
 
@@ -63,7 +49,7 @@ RUN apt install -y dialog \
 # this requires the following to be installed - determined by trial and error...
 # RUN apt install -y ros-humble-transmission-interface ros-humble-realtime-tools ros-humble-control-toolbox
 
-# RUN apt install -y ros-humble-joint-state-publisher-gui
+RUN apt install -y ros-humble-joint-state-publisher-gui
   
 # ??? for controller_manager
 # RUN apt install -y ros-humble-backward-ros
@@ -88,21 +74,26 @@ RUN apt install -y dialog \
 # RUN apt install -y ros-humble-ros2-control ros-humble-ros2-controllers
 
 
-# RUN apt install -y ros-humble-xacro
-# # next two for demos
-# RUN apt install -y dialog
+RUN apt install -y ros-humble-xacro
+# next two for demos
+RUN apt install -y dialog
 
 # RUN apt install -y ros-humble-joint-state-publisher-gui
 
-##########################
-# for Jetson only - though doesn't kill x86
-##########################
-RUN pip install adafruit-circuitpython-motorkit \
-    Jetson.GPIO \
-    adafruit-circuitpython-ssd1306
 
+# for Jetson only - though doesn't kill x86
+RUN echo "JETSON time - shouldn't hurt on x86"
+# needed?
+# RUN sudo pip install adafruit-circuitpython-servokit
+# run motors
+RUN sudo pip install adafruit-circuitpython-motorkit
+# needed?
+RUN sudo pip install Jetson.GPIO
+# for OLED display
+RUN sudo pip install adafruit-circuitpython-ssd1306
+#RUN sudo pip install adafruit-circuitpython-bme280
 # for  ip command - so stats can show local IP
-RUN apt install -y iproute2
+RUN sudo apt install iproute2 -y
 
 # this needs to be done on the Jetson host, prior to building docker image
 # sudo chmod +777 /dev/gpiochip0
@@ -110,7 +101,12 @@ RUN apt install -y iproute2
 # sudo chmod +777 /dev/i2c-0
 # sudo chmod +777 /dev/i2c-1
 # sudo chmod +777 /dev/i2c-7
+RUN echo "JETSON done..."
 
-
-# don't want setuptools-scm
-RUN pip uninstall -y setuptools-scm
+# https://robotics.stackexchange.com/questions/104326/colcon-build-on-ros2-humble-outputs-listing-git-files-failed-pretending-there
+RUN echo "test - if setuptools-scm is installed, remove ...  sudo pip3 uninstall setuptools-scm "
+RUN pip3 list | grep setuptools
+RUN echo "now remove setuptools-scm"
+RUN python3 -m pip uninstall setuptools-scm -y
+# RUN sudo pip uninstall setuptools-scm
+RUN echo "done"
