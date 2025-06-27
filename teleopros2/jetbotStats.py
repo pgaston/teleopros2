@@ -1,4 +1,6 @@
 '''
+6/2025 - not used as this is on the jetbot, which we're no longer using. 
+
 Jetbot Stats
 - Display Jetbot stats on the OLED display
     - Capture Platform, CPU, RAM, Disk, Temperature, Battery, and IP Address

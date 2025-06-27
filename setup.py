@@ -15,6 +15,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name), glob('teleopros2/launch/*launch.py')),
+        # Need to move over the website files to the package
         ('lib/python3.8/site-packages/teleopros2', glob('teleopros2/*.html')),
         ('lib/python3.8/site-packages/teleopros2', glob('teleopros2/*.js')),
         ('lib/python3.8/site-packages/teleopros2', glob('teleopros2/*.py')),        # shouldn't this already work?
@@ -31,8 +32,9 @@ setup(
     entry_points={
         'console_scripts': [
             'teleopros2_node = teleopros2.teleopros2:main',
-            'jetbotStats = teleopros2.jetbotStats:main',
-            'jetbotMove = teleopros2.jetbotMove:main',
+            # 'jetbotStats = teleopros2.jetbotStats:main',  # no longer used
+            # moving to launch file(s)
+            # 'jetbotMove = teleopros2.jetbotMove:main',
         ],
     },
 )
