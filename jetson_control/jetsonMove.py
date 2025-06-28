@@ -1,5 +1,5 @@
 '''
-JetBot move
+Jetson move
 - The ROS2 node diff_drive_controller is doing the actual work to translate request into motor inputs...
 - subscribe to cmd_vel_out
 - move robot

@@ -42,7 +42,7 @@ cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
 
 2. And, assuming you're using a Realsense camera - follow the instructions in [Hardware setup / sensors setup / Realsense](https://nvidia-isaac-ros.github.io/getting_started/hardware_setup/sensors/realsense_setup.html).    For other sensors, minor mods needed (probably.)
 
-Testing:  Run this in the docker built environment.
+Testing:  Use the Realsense camera in the docker built environment.
 ```
 realsense-viewer
 ```
@@ -111,33 +111,20 @@ Build (in the docker) - use symlink generally from here on out - this lets the s
 cd /workspaces/isaac_ros-dev
 colcon build --symlink-install --packages-select teleopros2
 ```
-Run to test.   Once you click `Connect` the server will send video from the ROS2 source to the
-browser.   The image shown in this case will indicate it is not receiving ROS2 image messages, since you aren't providing any, yet.
 
 
-8. Run/test with realsense camera
+Test: Use the web browser interface provided by ROS2 to view the image from the Realsense camera.
 ```
 source install/setup.bash
-ros2 run teleopros2 teleopros2_nodeteleop_launch
+ros2 launch teleopros2 teleopros2_launch.py
 ```
 
-You can then browse to the following page with your browser:
+You can then browse to the following page with your browser: (bypassing security notices)
 
 http://127.0.0.1:8080
 or, for the secure version (default)
 https://127.0.0.1:8080
 https://localhost:8080
-
-
-If you have a realsense installed, run in another terminal (do the run_dev.sh thing to get into the same docker)
-```
-source install/setup.bash
-ros2 launch realsense2_camera rs_launch.py
-```
-or, in a single launch file
-```
-ros2 launch teleopros2 teleRSCamera_launch.py
-```
 
 ** voila - WebRTC showing your realsense image **
 

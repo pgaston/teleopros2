@@ -20,7 +20,7 @@ setup(
         # used to be here
         # (os.path.join('share', package_name, 'launch'), glob('teleopros2/launch/*.py')),
 
-        # Need to move over the website files to the package
+        # Move over the website files to the package
         ('lib/python3.8/site-packages/teleopros2', glob('teleopros2/*.html')),
         ('lib/python3.8/site-packages/teleopros2', glob('teleopros2/*.js')),
         ('lib/python3.8/site-packages/teleopros2', glob('teleopros2/*.py')),        # shouldn't this already work?
@@ -36,10 +36,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'teleopros2_node = teleopros2.teleopros2:main',
-            # 'jetbotStats = teleopros2.jetbotStats:main',  # no longer used
-            # moving to launch file(s)
-            # 'jetbotMove = teleopros2.jetbotMove:main',
+            'teleopros2_node = teleopros2.teleopros2:main',        # web server, webrtc      
+            'jetson_move_node = jetson_control.jetsonMove:main',   # jetson motor control
         ],
     },
 )
