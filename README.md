@@ -82,7 +82,7 @@ colcon build
 
 For the Jetson Orin Nano, run the following, outside the docker environment.    This allows access to the hardware of the robot. (Your situation may vary.)
 ```
-sudo chmod +777 /dev/gpiochip0 /dev/gpiochip1 /dev/i2c-0 /dev/i2c-1 /dev/i2c-7
+sudo chmod 666 /dev/gpiochip0 /dev/gpiochip1 /dev/i2c-0 /dev/i2c-1 /dev/i2c-7
 ```
 
 - In your /workspaces/isaac_ros-dev/src directory git clone both [gscam](https://github.com/clydemcqueen/gscam2/tree/main) and [ros2_shared](https://github.com/ptrmu/ros2_shared)
@@ -130,6 +130,10 @@ https://localhost:8080
 
 ## HERE - Jetson ##
 1. Trying to get jetson motors to move
+
+https://github.com/adafruit/Adafruit_Python_PlatformDetect/pull/379
+
+
 
 ## HERE - Isaac sim ##
 1. Restore jetbot in isaac sim move

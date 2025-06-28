@@ -86,14 +86,18 @@ ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.0, y: 0.0, z: 0.
 
 def main():
 
-    rclpy.init()
     MoveNode = MoveRobot()     # do this sequentially, as it captures the parameters
     atexit.register(MoveNode.stopRobot)        # just in case...
 
-    rclpy.spin(MoveNode)
+    print("Starting motor test...")
 
+
+    print("Running test commands...")
+
+
+    print("Test complete, stopping robot")
     MoveNode.stopRobot()        # hmmm, wonder which way to stop robot is more certain?
-    rclpy.shutdown()
+
 
 if __name__ == "__main__":
     main()

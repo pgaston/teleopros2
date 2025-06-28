@@ -24,18 +24,24 @@ RUN apt install -y libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-plug
  # Seems strange to need to do this, but it is
 RUN apt update
 
-# Install ROS 2 packages - also 'dialog' - not sure why it is needed, but used somewhere
+# Install ROS 2 packages 
+# - also 'dialog' - not sure why it is needed, but used somewhere
+# - and i2c-tools - for hardware access
 RUN apt install -y dialog \
     ros-humble-ros2-control ros-humble-ros2-controllers ros-humble-xacro \
-    ros-humble-joint-state-publisher-gui
+    ros-humble-joint-state-publisher-gui \
+    i2c-tools
 
 ##########################
 # for Jetson only - though doesn't kill x86
+#
+# blinka added, not sure what previous installs are still needed...
 ##########################
 RUN pip install adafruit-circuitpython-motorkit \
     Jetson.GPIO \
     adafruit-circuitpython-ssd1306 \
-    jetson-stats
+    jetson-stats \
+    adafruit-blinka
 
 # for  ip command - so stats can show local IP
 RUN apt install -y iproute2

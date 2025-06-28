@@ -1,4 +1,9 @@
 -v $HOME/repos:/repos
 -v $HOME/.ssh:/home/admin/.ssh
 -v  /etc/localtime:/etc/localtime:ro 
-
+--device=/dev/gpiochip0:/dev/gpiochip0
+--device=/dev/gpiochip1:/dev/gpiochip1
+--device=/dev/i2c-0:/dev/i2c-0
+--device=/dev/i2c-1:/dev/i2c-1
+--device=/dev/i2c-7:/dev/i2c-7
+--privileged
