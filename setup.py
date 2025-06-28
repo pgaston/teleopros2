@@ -9,7 +9,7 @@ package_name = 'teleopros2'
 setup(
     name=package_name,
     version='0.1.0',
-    packages=[package_name],
+    packages=[package_name, 'jetson_control'],
     #packages=find_packages(exclude=['test']),
     data_files=[
         ('share/ament_index/resource_index/packages',
@@ -37,6 +37,7 @@ setup(
     entry_points={
         'console_scripts': [
             'teleopros2_node = teleopros2.teleopros2:main',        # web server, webrtc      
+            'jetbot_move_node = jetson_control.jetbotMove:main',   # jetbot motor control
             'jetson_move_node = jetson_control.jetsonMove:main',   # jetson motor control
         ],
     },

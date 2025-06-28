@@ -20,6 +20,7 @@ HOST_IP = os.getenv('HOST_IP', "0.0.0.0")
 def generate_launch_description():
 
     return LaunchDescription([
+        # to do - add jetbotMove node here
         # web site, listens for camera, generates move topics, etc.
         Node(
             package='teleopros2',

@@ -128,7 +128,16 @@ https://localhost:8080
 
 ** voila - WebRTC showing your realsense image **
 
+## HERE - Jetson ##
+1. Trying to get jetson motors to move
+
+## HERE - Isaac sim ##
+1. Restore jetbot in isaac sim move
+
+
 9. Run/test with NVidia Isaac sim.   [Web page](https://nvidia-isaac-ros.github.io/concepts/scene_reconstruction/nvblox/tutorials/tutorial_isaac_sim.html)
+
+
 
 
 Start Isaac sim [per directions](https://nvidia-isaac-ros.github.io/concepts/scene_reconstruction/nvblox/tutorials/tutorial_isaac_sim.html) .    BTW, I need to go to http://localhost:3080/ to restart all services (e.g., Nucleus).
