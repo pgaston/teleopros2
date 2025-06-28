@@ -1,116 +1,44 @@
 ARG BASE_IMAGE=ubuntu:22.04
 FROM ${BASE_IMAGE}
-# ARG BASE_IMAGE
-# FROM ${BASE_IMAGE}
 
 ARG TARGET_ROS_DISTRO=humble
 
-# pywebrtc - Installs/updates needed to get aiortc to work
-#RUN echo "Installing for aiortc, one upgrade, others required for aiortc"
-#RUN PATH=$PATH:"~/.local/bin"
+# Build a docker that extends the Jetson docker image and Realsense docker image:
+# 1. Installs things needed for WebRTC and aiortc
+# 2. Installs things for gscam extension
+# 3. Installs ros2_control and ros2_controllers
+# 4. Installs jetson specific needs
+
+# Note: the number of "RUN" commands is limited 
+
 RUN pip install pyopenssl --upgrade
-# opencv-python - this blows away SDK version - which has GStreamer
 RUN pip install google-crc32c pyee pylibsrtp natsort 
-
-# yarl multidict frozenlist 
 RUN pip install aiohttp[speedups] aiortc
-# this allows 'jtop' on jetson
-RUN pip install jetson-stats
 
-#RUN echo "DONE with teleopros2 extension, now gscam"
-
+# for gscam
 RUN apt install -y libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
  gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools \
  gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio \
  libgstreamer-plugins-base1.0-dev
 
-# For controls - ros2_control and ros2_controllers (and other stuff to get demos to build...)
-# turns out we need to compile ros2_control (at least) from source
-#RUN echo "now for ros_control"
-
+ # Seems strange to need to do this, but it is
 RUN apt update
-# when to do this - why not now?   Oh, it doesn't work on x86 (did on arm64...)
-# RUN apt upgrade -y
 
-RUN apt install -y 
-
+# Install ROS 2 packages - also 'dialog' - not sure why it is needed, but used somewhere
 RUN apt install -y dialog \
-    ros-humble-xacro \
-    ros-humble-joint-state-publisher-gui \
-    ros-humble-ros2-control \
-    ros-humble-ros2-controllers \
-    ros-humble-joint-state-publisher-gui \
-    ros-humble-xacro
-
-
-#     ros-humble-robot-state-publisher \\
-#     ros-humble-joint-state-publisher \\
-#     ros-humble-controller-manager \\
-#     ros-humble-controller-interface \\
-#     ros-humble-realtime-tools \\
-#     ros-humble-transmission-interface
-
-# RUN apt install -y ros-humble-joint-state-publisher-gui
-# RUN apt install -y dialog
-# RUN apt install -y ros-humble-ros2-control ros-humble-ros2-controllers
-
-
-
-# Seems like we need to install from source for ros-humble-ros2-control
-# - the apt version is not up to date w/ the latest ros2_control - a missing include file occurs elsewhere
-# so install from source it is for ros2_control
-
-# this requires the following to be installed - determined by trial and error...
-# RUN apt install -y ros-humble-transmission-interface ros-humble-realtime-tools ros-humble-control-toolbox
-
-# RUN apt install -y ros-humble-joint-state-publisher-gui
-  
-# ??? for controller_manager
-# RUN apt install -y ros-humble-backward-ros
-
-
-# ?? XXXX   ros-humble-ros2-controllers   ???????
-# try this!   i.e., don't recompile all this from source...
-# RUN apt install -y ros-humble-ros2-controllers
-
-
-
-# remove ros-humble-hardware-interface ros-humble-controller-interface \
-# hmmmm
-# RUN apt install -y ros-humble-realtime-tools ros-humble-transmission-interface
-# RUN apt install -y ros-humble-ros2-controllers
-
-# turns out we need to compile ros2_control (at least) from source
-# also, along for the ride are ros-humble-hardware-interface ros-humble-controller-interface
-
-# RUN apt install -y ros-humble-hardware-interface ros-humble-controller-interface \ 
-#  ros-humble-realtime-tools ros-humble-transmission-interface
-# RUN apt install -y ros-humble-ros2-control ros-humble-ros2-controllers
-
-
-# RUN apt install -y ros-humble-xacro
-# # next two for demos
-# RUN apt install -y dialog
-
-# RUN apt install -y ros-humble-joint-state-publisher-gui
+    ros-humble-ros2-control ros-humble-ros2-controllers ros-humble-xacro \
+    ros-humble-joint-state-publisher-gui
 
 ##########################
 # for Jetson only - though doesn't kill x86
 ##########################
 RUN pip install adafruit-circuitpython-motorkit \
     Jetson.GPIO \
-    adafruit-circuitpython-ssd1306
+    adafruit-circuitpython-ssd1306 \
+    jetson-stats
 
 # for  ip command - so stats can show local IP
 RUN apt install -y iproute2
 
-# this needs to be done on the Jetson host, prior to building docker image
-# sudo chmod +777 /dev/gpiochip0
-# sudo chmod +777 /dev/gpiochip1
-# sudo chmod +777 /dev/i2c-0
-# sudo chmod +777 /dev/i2c-1
-# sudo chmod +777 /dev/i2c-7
-
-
-# don't want setuptools-scm
+# don't want setuptools-scm - not sure why it is installed, but it causes problems
 RUN pip uninstall -y setuptools-scm
