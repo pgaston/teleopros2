@@ -188,7 +188,7 @@ argsverbose = False             # default logging verbosity (False - show Info, 
 
 
 height, width = 480, 640
-logger = logging.getLogger("pc")
+logger = None       # set in init of the ROS2 node
 
 ####################################
 # WebRTC - Code derived from server.py in aiortc
@@ -286,7 +286,7 @@ class VideoStreamTrack(MediaStreamTrack):
         return frame
 
     def __del__(self):
-        logging.debug("VideoStreamTrack deleted")
+        logger.debug("VideoStreamTrack deleted")
 
 ## Web server
 async def index(request):       # a blank url defaults to index.html
@@ -305,20 +305,20 @@ async def offer(request):           # WebRTC request from browser
     pc = RTCPeerConnection()
     pcs.add(pc)
 
-    logger.info("PeerConnection created for %s", request.remote)
+    logger.info(f"PeerConnection created for {request.remote}")
 
     @pc.on("datachannel")
     def on_datachannel(channel):
         global dc
-        logger.debug("on_datachannel: was %s now %s" % (dc,channel))
-        dc=channel
+        logger.debug(f"on_datachannel: was {dc} now {channel}")
+        dc = channel
 
         @channel.on("message")
         def on_message(message):
             if isinstance(message, str):
                 dataChannelReceive(message)
             else:
-                logger.info("on_datachannel - unknown message: %s" % (message))     # wonder what will show up if binary?   :)
+                logger.info(f"on_datachannel - unknown message: {message}")  # wonder what will show up if binary?   :)
 
     @pc.on("connectionstatechange")
     async def on_connectionstatechange():
@@ -327,7 +327,7 @@ async def offer(request):           # WebRTC request from browser
             logger.debug("on_connectionstatechange: pc is None")
             pass
         else:
-            logger.debug("on_connectionstatechange: %s", pc.connectionState)
+            logger.debug(f"on_connectionstatechange: {pc.connectionState}")
 
     @pc.on("iceconnectionstatechange")
     async def on_iceconnectionstatechange():
@@ -336,7 +336,7 @@ async def offer(request):           # WebRTC request from browser
             logger.debug("iceconnectionstatechange: pc is None")
             pass
         else:
-            logger.debug("iceconnectionstatechange: %s", pc.iceConnectionState)
+            logger.debug(f"iceconnectionstatechange: {pc.iceConnectionState}")
             if pc.iceConnectionState == "failed":
                 await pc.close()
                 pcs.discard(pc)
@@ -344,15 +344,11 @@ async def offer(request):           # WebRTC request from browser
 
     @pc.on("track")
     def on_track(track):
-        logger.debug("Track %s received", track.kind)
+        logger.debug(f"Track {track.kind} received")
         if track.kind == "audio":
-            # ignored for this use case - see server.py for how they use
             pass
         elif track.kind == "video":
-            # this should not get called - as we're only pushing one way
             logger.error("on_track - should not get video track")
-
-            # add our locally generated video track here...
             pc.addTrack(VideoStreamTrack())
             logger.debug("Added video track to pc")
 
@@ -361,25 +357,20 @@ async def offer(request):           # WebRTC request from browser
             if track.kind == "audio":
                 pass
             elif track.kind == "video":
-                logger.info("Track %s ended", track.kind)
-
+                logger.info(f"Track {track.kind} ended")
             global dc
-            dc = None       # data channel no longer valid
+            dc = None
 
-    # this is the video we use to push from heah to theah
     pc.addTrack(VideoStreamTrack())
  
-    # handle offer
     await pc.setRemoteDescription(offer)
-
-    # send answer
     answer = await pc.createAnswer()
     await pc.setLocalDescription(answer)
 
     return web.Response(
         content_type="application/json",
         text=json.dumps(
-            {"sdp": pc.localDescription.sdp, "type": pc.localDescription.type}
+            {"sdp": pc.localDescription.sdp, "type": (pc.localDescription.type)}
         ),
     )
 
@@ -470,6 +461,9 @@ class WebRTCPubSub(Node):
 
     def __init__(self):
         super().__init__('teleopros2')
+
+        global logger
+        logger = self.get_logger()
 
         # parameters
         # some common default topics for images...
@@ -565,23 +559,29 @@ def runROSNode():
 ####################################
 
 def main():
-    global Ros2PubSubNode
+    global Ros2PubSubNode, logger, argsverbose
     rclpy.init()
     Ros2PubSubNode = WebRTCPubSub()     # do this sequentially, as it captures the parameters
+
+    # Set up Python logger if not running as ROS2 node
+    if logger is None:
+        import logging
+        logger = logging.getLogger("teleopros2")
+        if argsverbose:
+            logger.basicConfig(level=logging.DEBUG)
+        else:
+            logger.basicConfig(level=logging.INFO)
+
     t = threading.Thread(target=runROSNode)
     t.start()
-
 
     global VIDEO_PTIME
     VIDEO_PTIME = 1 / argsfps           # use parameterized fps
 
-    if argsverbose:
-        logging.basicConfig(level=logging.DEBUG)
-    else:
-        logging.basicConfig(level=logging.INFO)
+
 
     if argsssl:
-        logging.debug("creating SSL context...")
+        logger.debug("creating SSL context...")
 
         certFP = argscertfile
         keyFP = argskeyfile
@@ -589,17 +589,17 @@ def main():
             certFP = os.path.join(ROOT,argscertfile)
             keyFP = os.path.join(ROOT,argskeyfile)
         if not os.path.isfile(certFP):
-            logging.error("cert file not found: %s" % (certFP))
+            logger.error("cert file not found: %s" % (certFP))
             return
         if not os.path.isfile(keyFP):
-            logging.error("key file not found: %s" % (keyFP))
+            logger.error("key file not found: %s" % (keyFP))
             return
 
         ssl_context = ssl.SSLContext()
         ssl_context.load_cert_chain(certFP, keyFP)
 
     else:
-        logging.debug("Not SSL")
+        logger.debug("Not SSL")
         ssl_context = None
 
     import warnings

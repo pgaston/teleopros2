@@ -99,13 +99,10 @@ colcon build
 ```
 
 6. Add SSL certificates.   This is required for mobile.   This is the default.    To change the default set the 'ssl' parameter to false.
- 
-- Create a 'certs' directory at the top level of teleopros2
-- Create a local server.certs and server.key file in this directory.   [Here is one approach.](https://deliciousbrains.com/ssl-certificate-authority-for-local-https-development/#how-it-works) .    *Tip - don't add a passphrase.*
-- (btw, I included a certs.zip that you can expand into a certs folder there.    Not secure in the slightest - but you can use to test mobile/twisting.   I can't include otherwise as it sets off a github security alert.)
 
-*Note - your browser will show this as insecure.*   Go to advanced / proceed anyway.   Exercise for the user to do this 'correctly'.   Just pay - or search for how to get for free...
-
+- There is a 'certs' directory at the top level of teleopros2.   This is where server.cert and server.key will go.
+- btw, I included a certs.zip that expands to include a working set of files.   This isn't secure, but you can use for development/testing.    Just blow by the security warning in your browser.
+- For operations, create a local server.certs and server.key file in this directory.   [Here is one approach.](https://deliciousbrains.com/ssl-certificate-authority-for-local-https-development/#how-it-works) .    *Tip - don't add a passphrase.*
 
 7. Build
 
@@ -121,7 +118,7 @@ browser.   The image shown in this case will indicate it is not receiving ROS2 i
 8. Run/test with realsense camera
 ```
 source install/setup.bash
-ros2 run teleopros2 teleopros2_node
+ros2 run teleopros2 teleopros2_nodeteleop_launch
 ```
 
 You can then browse to the following page with your browser:

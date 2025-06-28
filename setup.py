@@ -8,13 +8,18 @@ package_name = 'teleopros2'
 
 setup(
     name=package_name,
-    version='0.0.0',
-    packages=find_packages(exclude=['test']),
+    version='0.1.0',
+    packages=[package_name],
+    #packages=find_packages(exclude=['test']),
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        (os.path.join('share', package_name), glob('teleopros2/launch/*launch.py')),
+        #(os.path.join('share', package_name), glob('teleopros2/launch/*launch.py')),
+        (os.path.join('share', package_name, 'launch'), glob('launch/*.py')),
+        # used to be here
+        # (os.path.join('share', package_name, 'launch'), glob('teleopros2/launch/*.py')),
+
         # Need to move over the website files to the package
         ('lib/python3.8/site-packages/teleopros2', glob('teleopros2/*.html')),
         ('lib/python3.8/site-packages/teleopros2', glob('teleopros2/*.js')),
