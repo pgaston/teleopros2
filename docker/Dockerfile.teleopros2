@@ -48,3 +48,7 @@ RUN apt install -y iproute2
 
 # don't want setuptools-scm - not sure why it is installed, but it causes problems
 RUN pip uninstall -y setuptools-scm
+
+# and need local access on jetson orin nano to control motors
+# RUN chmod 666 /dev/gpiochip0 /dev/gpiochip1 /dev/i2c-0 /dev/i2c-1 /dev/i2c-7
+
