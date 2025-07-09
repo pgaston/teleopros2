@@ -1,5 +1,5 @@
 '''
-Jetbot move
+Jetson move
 - The ROS2 node diff_drive_controller is doing the actual work to translate request into motor inputs...
 - subscribe to cmd_vel_out
 - move robot
@@ -7,28 +7,27 @@ Jetbot move
 
 import atexit
 
-
-
+from adafruit_motorkit import MotorKit
 
 # ros2 imports
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
 
-from PCA9685ServoESC import SteeringDriveMotorController
-
-
-# ROS2 move to actually move jetson motors
+## ROS2 Node to publish stats
+# WebRTC node publish/subscribe
 class MoveRobot(Node):
 
     def __init__(self):
         super().__init__('moverobot')
 
         # setup Motor control via I2C
-        self.kit = SteeringDriveMotorController()
+        self.kit = MotorKit()
+        self.kit.motor1.throttle = 0.0
+        self.kit.motor2.throttle = 0.0
 
         # parameters
-        self.declare_parameter('twist-topic', 'cmd_vel')
+        self.declare_parameter('twist-topic', 'cmd_vel_out')
         argstwisttopic = self.get_parameter('twist-topic').value
 
         self.subscription = self.create_subscription(Twist,argstwisttopic,self.twist_callback,10)
@@ -36,7 +35,9 @@ class MoveRobot(Node):
 
     def stopRobot(self):
         print("Stopping robot")
-        self.kit.done()
+        self.kit.motor1.throttle = 0.0
+        self.kit.motor2.throttle = 0.0
+        pass
 
     # values are from -100 to +100
     def twist_callback(self, cmd_vel_msg):
@@ -53,27 +54,22 @@ class MoveRobot(Node):
         pwr = max(-1.0, min(1.0, pwr))      # just in case commmands were off...
         rot = max(-1.0, min(1.0, rot))
 
-        # ackerman drive
-        print("Ackerman Drive: Power: ", pwr, " Rotation: ", rot)
-        # self.kit.set_SteerDrive(rot,pwr)
-
-        # jetbot
         # to do this 'right' - https://answers.ros.org/question/244540/kinematic-and-dynamic-equations-of-robot/
         # if we were doing this for RPMs...
         # vel_l = ((cmd_vel_msg.linear.x - (cmd_vel_msg.angular.z * self.wheel_bias / 2.0)) / self.wheel_radius) * 60/(2*3.14159)
         # vel_r = ((cmd_vel_msg.linear.x + (cmd_vel_msg.angular.z * self.wheel_bias / 2.0)) / self.wheel_radius) * 60/(2*3.14159)
 
-        # lt = pwr - rot
-        # rt = pwr + rot
+        lt = pwr - rot
+        rt = pwr + rot
 
-        # lt = max(-1.0, min(1.0, lt))
-        # rt = max(-1.0, min(1.0, rt))
+        lt = max(-1.0, min(1.0, lt))
+        rt = max(-1.0, min(1.0, rt))
 
-        # print("Power: ", pwr, " Rotation: ", rot)
-        # print("Left: ", lt, " Right: ", rt)
+        print("Power: ", pwr, " Rotation: ", rot)
+        print("Left: ", lt, " Right: ", rt)
 
-        # self.kit.set_SteerDrive(rot,pwr)
-
+        self.kit.motor1.throttle = rt
+        self.kit.motor2.throttle = lt
         
 '''
 # forward

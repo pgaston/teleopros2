@@ -7,9 +7,13 @@ Control a servo motor and ESC drive motor using PCA9685 on Jetson Orin Nano
 - pwm 0 is for steering servo
 - pwm 1 is for drive motor (ESC)
 
-One class for both steering and drive motor control.
+Control range is from -1 to 0 to 1
+- Steering - -1 is full left, 0 is center, 1 is full right
+- Drive - -1 is full reverse, 0 is stop, 1 is full forward
 
 Uses adafruit_pca9685 library for PWM control
+
+Could get fancy and use a class for each channel, but this is simpler for now.
 '''
 
 import board
@@ -30,18 +34,15 @@ class SteeringDriveMotorController: # PCA9685 based controller for steering serv
         self.pca = adafruit_pca9685.PCA9685(i2c, address=0x40)
         self.pca.frequency = 50
 
-        print("pca=", self.pca)
-
         # Capture servo and drive motor channels
         self.servo_channel = self.pca.channels[0]
         self.drive_channel = self.pca.channels[1]
 
         # PWM values (adjust these based on your ESC)
-        # There are the same for the servo as well
+        # Same for the servo as well
         self.min_pulse = 3277    # ~1ms (full reverse or minimum)
         self.neutral_pulse = 4915 # ~1.5ms (neutral/stop)
         self.max_pulse = 6553    # ~2ms (full forward or maximum)
-
 
         # Initialize steering servo
         print("Initializing steering servo...")
@@ -58,21 +59,20 @@ class SteeringDriveMotorController: # PCA9685 based controller for steering serv
 
     # raw - set duty cycle directly - range from -1.0 to 0 to 1.0
     def set_MotorSpeed(self, channel, speed):
+        speed = max(-1.0, min(1.0, speed))      # clamp
         if speed == 0:
-            # Neutral position
-            duty_cycle = self.neutral_pulse
+            duty_cycle = self.neutral_pulse     # Neutral position
         elif speed > 0:
             # Forward direction
             duty_cycle = int(self.neutral_pulse + speed * (self.max_pulse - self.neutral_pulse))
         else:
-            # Reverse direction (if ESC supports it)
+            # Reverse direction (if ESC supports it - ours does)
             duty_cycle = int(self.neutral_pulse + speed * (self.neutral_pulse - self.min_pulse))
         
-        channel.duty_cycle = duty_cycle
+        channel.duty_cycle = duty_cycle         # send to actual motor
         print(f"Motor speed: {speed*100:.1f}% (duty cycle: {duty_cycle})")
 
     def done(self):
-        # self.stop_Drive()
         # Turn off PWM signal to servo and ESC
         self.servo_channel.duty_cycle = 0
         self.drive_channel.duty_cycle = 0
@@ -88,27 +88,14 @@ class SteeringDriveMotorController: # PCA9685 based controller for steering serv
         self.set_Servoangle(steer_angle)
         self.set_Drivespeed(drive_speed)
 
-
-
-    def set_Servoangle(self, angle):
-        """
-        Set servo to specific angle (0-180 degrees)
-        Most servos use:
-        - 1ms pulse (0 degrees) = ~3277 duty cycle
-        - 1.5ms pulse (90 degrees) = ~4915 duty cycle  
-        - 2ms pulse (180 degrees) = ~6553 duty cycle
-        """
+    def set_SteeringServo(self, steer):
         if not self.Servoinitialized:
             print("Servo not initialized!")
             return
-        # Convert angle to duty cycle
-        # duty_cycle = int((angle / 180.0) * (6553 - 3277) + 3277)
-        # min_duty = 3277   # 1ms pulse width
-        # max_duty = 6553   # 2ms pulse width
-        duty_cycle = int(self.min_pulse + (angle / 180.0) * (self.max_pulse - self.min_pulse))
         
-        self.servo_channel.duty_cycle = duty_cycle
-        print(f"Servo set to {angle}° (duty cycle: {duty_cycle})")
+        self.set_MotorSpeed(self.servo_channel, steer)  # Ensure ESC is stopped before changing steering
+        print(f"Steering servo set to {steer}")
+
 
     def set_Drivespeed(self, speed):
         """
@@ -121,9 +108,6 @@ class SteeringDriveMotorController: # PCA9685 based controller for steering serv
             print("ESC not initialized!")
             return
         
-        # Clamp speed to valid range
-        speed = max(-1.0, min(1.0, speed))
-
         if speed < 0 and self.forward:
             print("Switching to reverse mode")
             self.forward = False
@@ -135,27 +119,21 @@ class SteeringDriveMotorController: # PCA9685 based controller for steering serv
             self.drive_channel.duty_cycle = self.neutral_pulse
             time.sleep(.1)
    
-        elif speed > 0 and not self.forward:
+        elif speed >= 0 and not self.forward:
             print("Switching to forward mode")
             self.forward = True
             # no change needed
 
-        if speed == 0:
-            # Neutral position
-            duty_cycle = self.neutral_pulse
-        elif speed > 0:
-            # Forward direction
-            duty_cycle = int(self.neutral_pulse + speed * (self.max_pulse - self.neutral_pulse))
-        else:
-            # Reverse direction (if ESC supports it)
-            duty_cycle = int(self.neutral_pulse + speed * (self.neutral_pulse - self.min_pulse))
-        
-        self.drive_channel.duty_cycle = duty_cycle
-        print(f"Motor speed: {speed*100:.1f}% (duty cycle: {duty_cycle})")
+        self.set_MotorSpeed(self.drive_channel, speed)  # Ensure ESC is stopped before changing steering
+        print(f"Motor speed set to {speed}")
     
-    def stop_Drive(self):
-        """Stop ESC motor"""
-        self.set_Drivespeed(0)
+    def set_SteerDrive(self, steer, speed):
+        self.set_Drivespeed(speed)
+        self.set_SteeringServo(steer)
+
+    def reset(self):
+        self.set_SteerDrive(0, 0)
+
 
 
 def servo_test():
@@ -167,33 +145,37 @@ def servo_test():
     
     try:
         # Move to 0 degrees
-        motors.set_Servoangle(0)
+        motors.set_SteeringServo(-0.5)
         time.sleep(1)
         
         # Move to 90 degrees (center)
-        motors.set_Servoangle(90)
+        motors.set_SteeringServo(0)
         time.sleep(1)
         
         # Move to 180 degrees
-        motors.set_Servoangle(180)
+        motors.set_SteeringServo(0.5)
         time.sleep(1)
         
         # Return to center
-        motors.set_Servoangle(90)
+        motors.set_SteeringServo(0)
         time.sleep(1)
-        
+
+         # Ready for sweep
+        motors.set_SteeringServo(-0.6)
+        time.sleep(1)
+       
         # Sweep test
         print("Performing sweep test...")
-        for angle in range(0, 181, 10):
-            motors.set_Servoangle(angle)
+        for angle in [x * 0.1 for x in range(-6, 7)]:  # Works with floats
+            motors.set_SteeringServo(angle)
             time.sleep(0.1)
-        
-        for angle in range(180, -1, -10):
-            motors.set_Servoangle(angle)
+
+        for angle in [x * 0.1 for x in range(6, -7, -1)]:
+            motors.set_SteeringServo(angle)
             time.sleep(0.1)
         
         # Return to center and stop
-        motors.set_Servoangle(90)
+        motors.set_SteeringServo(0)
         print("Servo test completed!")
         
     except Exception as e:
@@ -212,47 +194,47 @@ def motor_test():
     try:
         # print("Testing forward speeds...")
         # # for speed in [0.2, 0.5, 0.8, 1.0]:
-        for speed in [0.10]:
-            print(f"Forward {speed*100}%...")
+        for speed in [x * 0.1 for x in range(-3,4)]:
+            print(f"Speed {speed*100}%...")
             motors.set_Drivespeed(speed)
-            time.sleep(2)
+            time.sleep(1)
         
-        print("Stopping ...")
-        motors.stop_Drive()
-        time.sleep(2)
+        # print("Stopping ...")
+        # motors.reset()
+        # time.sleep(2)
         
-        # Test reverse (if your ESC supports bidirectional)
-        print("Testing reverse speeds...")
-        # for speed in [-0.2, -0.5, -0.8, -1.0]:
-        for speed in [-0.10]:
-            print(f"Reverse {abs(speed)*100}%...")
-            motors.set_Drivespeed(speed)
-            time.sleep(2)
+        # # Test again (if your ESC supports bidirectional)
+        # print("Testing reverse speeds...")
+        # # for speed in [-0.2, -0.5, -0.8, -1.0]:
+        # for speed in [x * 0.1 for x in range(3, -3,-1)]:
+        #     print(f"Speed {abs(speed)*100}%...")
+        #     motors.set_Drivespeed(speed)
+        #     time.sleep(2)
         
-        print("Stopping")
-        motors.stop_Drive()
-        time.sleep(2)
+        # print("Stopping")
+        # motors.reset()
+        # time.sleep(2)
 
-        # print("Testing forward speeds...")
-        # # for speed in [0.2, 0.5, 0.8, 1.0]:
-        for speed in [0.10]:
-            print(f"Forward {speed*100}%...")
-            motors.set_Drivespeed(speed)
-            time.sleep(2)
+        # # print("Testing forward speeds...")
+        # # # for speed in [0.2, 0.5, 0.8, 1.0]:
+        # for speed in [x * 0.1 for x in range(1)]:
+        #     print(f"Forward {speed*100}%...")
+        #     motors.set_Drivespeed(speed)
+        #     time.sleep(2)
  
 
         print("Final stop...")
-        motors.stop_Drive()
+        motors.reset()
         time.sleep(1)
         
         print("ESC motor test completed!")
         
     except KeyboardInterrupt:
         print("\nTest interrupted by user")
-        motors.stop_Drive()
+        motors.reset()
     except Exception as e:
         print(f"Motor test failed: {e}")
-        motors.stop_Drive()
+        motors.reset()
     finally:
         motors.done()
 
@@ -266,36 +248,39 @@ def steerDrive_test():
     try:
         # print("Testing forward speeds...")
         # # for speed in [0.2, 0.5, 0.8, 1.0]:
-        motors.set_SteerDrive(70,0.10)
+        motors.set_SteerDrive(.1,0.10)
+        motors.set_SteerDrive(1,0.10)
         time.sleep(2)
         
         print("Stopping ...")
-        motors.set_SteerDrive(90,0.0)
+        motors.reset()
         time.sleep(0.5)
 
-        print("reverse speeds...")
-        motors.set_SteerDrive(70,-0.10)
-        time.sleep(2)      
+        # print("reverse speeds...")
+        # motors.set_SteerDrive(-.1,-0.10)
+        # time.sleep(2)      
 
-        print("Stopping ...")
-        motors.set_SteerDrive(90,0.0)
-        time.sleep(0.5)
+        # print("Stopping ...")
+        # motors.reset()
+        # time.sleep(0.5)
 
-        print("forward speeds...")
-        motors.set_SteerDrive(110,0.10)
-        time.sleep(2)      
+        # print("forward speeds...")
+        # motors.set_SteerDrive(.1,0.10)
+        # time.sleep(2)      
 
-        print("Stopping ...")
-        motors.set_SteerDrive(90,0.0)
-        time.sleep(0.5)
+        # print("Stopping ...")
+        # motors.reset()
+
+        # time.sleep(0.5)
 
 
     except KeyboardInterrupt:
         print("\nTest interrupted by user")
-        motors.stop_Drive()
+        motors.reset()
     except Exception as e:
         print(f"Motor test failed: {e}")
-        motors.stop_Drive()
+        motors.reset()
+
     finally:
         motors.done()
 

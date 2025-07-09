@@ -36,6 +36,7 @@ the NVidia suggested approach of using their Docker environment.
 Testing:
 - Docker environment launches successfully.   Note that we customize this in the next step.
 ```
+sudo chmod 666 /dev/gpiochip0 /dev/gpiochip1 /dev/i2c-0 /dev/i2c-1 /dev/i2c-7
 cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
   ./scripts/run_dev.sh
 ```
@@ -65,6 +66,7 @@ cp TeleOpROS2/docker/Dockerfile.teleopros2 isaac_ros_common/docker/
 ```
 after this, run_dev.sh should work for our world.   This is how to run the 'standard' NVidia docker environment, with my additions, per #2 above.
 ```
+
 cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
   ./scripts/run_dev.sh
 ```
