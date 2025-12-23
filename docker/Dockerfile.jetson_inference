@@ -1,0 +1,47 @@
+# This file extends the base Isaac ROS image for Jetpack 6.1 / L4T R36.2.0
+ARG BASE_IMAGE=nvcr.io/nvidia/l4t-pytorch:r36.2.0-pth2.1-py3
+FROM ${BASE_IMAGE}
+
+# Install jetson-inference dependencies (many now included in base image)
+RUN apt-get update && apt-get install -y \
+    libsoup2.4-dev \
+    libgstreamer-plugins-bad1.0-dev \
+    libgstrtspserver-1.0-dev \
+    libjson-glib-dev \
+    cmake \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create functional stubs for missing DLA/CUDLA libraries (still needed for Jetpack 6.1)
+RUN echo 'void nvdla(){}; void cudla(){};' > /tmp/stubs.c && \
+    gcc -shared -fPIC /tmp/stubs.c -o /usr/lib/aarch64-linux-gnu/libnvdla_compiler.so && \
+    gcc -shared -fPIC /tmp/stubs.c -o /usr/lib/aarch64-linux-gnu/libnvcudla.so
+
+# Build jetson-inference from source (latest version for Jetpack 6.1)
+WORKDIR /opt
+RUN git clone --recursive --depth=1 https://github.com/dusty-nv/jetson-inference && \
+    cd jetson-inference && \
+    # Fix Python binding issues - remove npymath dependency completely
+    find . -name "CMakeLists.txt" -exec sed -i '/npymath/d' {} \; && \
+    sed -i 's/target_link_libraries.*npymath.*//g' python/bindings/CMakeLists.txt && \
+    sed -i '/npymath/d' python/bindings/CMakeLists.txt && \
+    mkdir build && cd build && \
+    cmake -DBUILD_INTERACTIVE=OFF \
+          -DCUDA_ARCH_BIN="8.7" \
+          -DENABLE_NVMM=ON \
+          -DCMAKE_EXE_LINKER_FLAGS="-Wl,--allow-shlib-undefined" \
+          -DCMAKE_SHARED_LINKER_FLAGS="-Wl,--allow-shlib-undefined" \
+          -DBUILD_PYTHON_BINDINGS=OFF \
+          -DENABLE_TENSORRT=ON \
+          -DENABLE_ONNX=ON \
+          -DUSE_LEGACY_TENSORRT_API=OFF \
+          ../ && \
+    make -j$(nproc) && \
+    make install && \
+    ldconfig
+
+# Clean up stubs so they don't interfere with real drivers at runtime
+RUN rm -f /usr/lib/aarch64-linux-gnu/libnvdla_compiler.so \
+          /usr/lib/aarch64-linux-gnu/libnvcudla.so
+
+WORKDIR /workspaces/isaac_ros-dev

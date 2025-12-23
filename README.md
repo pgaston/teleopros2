@@ -1,3 +1,19 @@
+testin' - currently too fast...
+
+sudo chmod 666 /dev/gpiochip0 /dev/gpiochip1 /dev/i2c-0 /dev/i2c-1 /dev/i2c-7
+cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
+  ./scripts/run_dev.sh
+
+
+cd src/...
+python PCA9685ServoESC.py
+
+
+
+
+
+
+
 
 # TeleOp on ROS2 using WebRTC 
 ## for ROS2 alone, or via the NVidia docker setup for Jetson (Orin) Nano/x86
@@ -35,10 +51,41 @@ the NVidia suggested approach of using their Docker environment.
 
 Testing:
 - Docker environment launches successfully.   Note that we customize this in the next step.
+
+The 'chmod' command is used on the Jetson Orin Nano only.
 ```
+# i2c access - fixed (using gemini AI - go there to see how)
 sudo chmod 666 /dev/gpiochip0 /dev/gpiochip1 /dev/i2c-0 /dev/i2c-1 /dev/i2c-7
+
+# need video (only needed if startted without a video monitor live ???)
+sudo rm /dev/fb0 && sudo mknod /dev/fb0 c 29 0 && sudo chmod 666 /dev/fb0
+
 cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
   ./scripts/run_dev.sh
+
+colcon build --packages-select rc_hardware_control
+
+ros2 launch rc_hardware_control steering_tracking_example.launch.py
+
+test
+ros2 topic pub /bicycle_steering_controller/reference_unstamped geometry_msgs/msg/Twist "{linear: {x: 0.01}, angular: {z: 0.0}}" 
+
+and third window
+ros2 topic echo /joint_states
+ros2 topic echo /joint_states --field velocity
+
+
+-or- only for joint, steer, traction
+ros2 launch rc_hardware_control basic_steering_traction.launch.py
+
+test
+# 1. Start with everything stopped/centered
+ros2 topic pub /steering_controller/commands std_msgs/msg/Float64MultiArray "data: [0.0]" --once
+ros2 topic pub /traction_controller/commands std_msgs/msg/Float64MultiArray "data: [0.0]" --once
+
+
+
+
 ```
 
 2. And, assuming you're using a Realsense camera - follow the instructions in [Hardware setup / sensors setup / Realsense](https://nvidia-isaac-ros.github.io/getting_started/hardware_setup/sensors/realsense_setup.html).    For other sensors, minor mods needed (probably.)

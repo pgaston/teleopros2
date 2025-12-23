@@ -1,2 +1,2 @@
-CONFIG_IMAGE_KEY=ros2_humble.realsense.teleopros2
+CONFIG_IMAGE_KEY=ros2_humble.realsense.teleopros2.jetson_inference
 CONFIG_DOCKER_SEARCH_DIRS=($HOME/workspaces/isaac_ros-dev/src/teleopros2/docker)

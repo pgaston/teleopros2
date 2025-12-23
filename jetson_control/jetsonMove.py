@@ -47,15 +47,18 @@ class MoveRobot(Node):
         # ry = cmd_vel_msg.angular.y
         rz = cmd_vel_msg.angular.z      # Rotation
 
-        pwr = x / 100.0
-        rot = rz / 100.0
+        pwr = x 
+        rot = rz
+
+        # pwr = x / 100.0
+        # rot = rz / 100.0
 
         pwr = max(-1.0, min(1.0, pwr))      # just in case commmands were off...
         rot = max(-1.0, min(1.0, rot))
 
         # ackerman drive
         print("Ackerman Drive: Power: ", pwr, " Rotation: ", rot)
-        # self.kit.set_SteerDrive(rot,pwr)
+        self.kit.set_SteerDrive(rot,pwr)
 
         # jetbot
         # to do this 'right' - https://answers.ros.org/question/244540/kinematic-and-dynamic-equations-of-robot/

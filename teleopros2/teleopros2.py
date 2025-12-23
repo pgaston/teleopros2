@@ -515,6 +515,8 @@ class WebRTCPubSub(Node):
         self.jPublisher_ = self.create_publisher(String, argsjsontopic, 10)
         self.twistPublisher_ = self.create_publisher(Twist, argstwisttopic, 10)
 
+        logger.info("publishing twist on: %s" % (argstwisttopic))
+
         logger.debug('WebRTCPubSub initialized')
         
     def publishTwist(self, jTwist):

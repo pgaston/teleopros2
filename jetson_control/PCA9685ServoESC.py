@@ -1,4 +1,13 @@
 '''
+Hook up:
+nano / pca9685
+ 1 - VCC
+ 2 - V+
+ 3 - SDA
+ 4 - open
+ 5 - SCL
+ 6 - GND
+
 Control a servo motor and ESC drive motor using PCA9685 on Jetson Orin Nano
 - ESC is a Hyric brushless motor controller - Brush-X60-RTR
     Arming: set to neutral for 2 seconds
@@ -192,9 +201,9 @@ def motor_test():
 
     
     try:
-        # print("Testing forward speeds...")
+        print("Testing forward speeds...")
         # # for speed in [0.2, 0.5, 0.8, 1.0]:
-        for speed in [x * 0.1 for x in range(-3,4)]:
+        for speed in [x * 0.05 for x in range(-3,4)]:
             print(f"Speed {speed*100}%...")
             motors.set_Drivespeed(speed)
             time.sleep(1)
@@ -248,8 +257,13 @@ def steerDrive_test():
     try:
         # print("Testing forward speeds...")
         # # for speed in [0.2, 0.5, 0.8, 1.0]:
-        motors.set_SteerDrive(.1,0.10)
-        motors.set_SteerDrive(1,0.10)
+
+
+
+
+
+        # motors.set_SteerDrive(.5,0.2)
+        # motors.set_SteerDrive(1,0.0)
         time.sleep(2)
         
         print("Stopping ...")
@@ -288,5 +302,5 @@ def steerDrive_test():
 
 if __name__ == "__main__":
     # servo_test()
-    # motor_test()
-    steerDrive_test()
+    motor_test()
+    # steerDrive_test()

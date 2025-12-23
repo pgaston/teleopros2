@@ -13,24 +13,38 @@ ARG TARGET_ROS_DISTRO=humble
 
 RUN pip install pyopenssl --upgrade
 RUN pip install google-crc32c pyee pylibsrtp natsort 
-RUN pip install aiohttp[speedups] aiortc
+RUN pip install aiohttp[speedups] aiortc 
+
+ # Seems strange to need to do this, but it is
+RUN apt update --allow-releaseinfo-change && apt upgrade -y
 
 # for gscam
 RUN apt install -y libgstreamer1.0-0 gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
- gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools \
- gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio \
- libgstreamer-plugins-base1.0-dev
+    gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools \
+    gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio \
+    libgstreamer-plugins-base1.0-dev \
+    libgstreamer-plugins-bad1.0-dev \
+    libgstrtspserver-1.0-dev \
+    gstreamer1.0-plugins-bad \
+    libjson-glib-dev
 
- # Seems strange to need to do this, but it is
-RUN apt update
 
-# Install ROS 2 packages 
-# - also 'dialog' - not sure why it is needed, but used somewhere
-# - and i2c-tools - for hardware access
-RUN apt install -y dialog \
-    ros-humble-ros2-control ros-humble-ros2-controllers ros-humble-xacro \
-    ros-humble-joint-state-publisher-gui \
-    i2c-tools
+
+# Install basic packages
+RUN apt install -y dialog libi2c-dev i2c-tools \
+    libsoup2.4-dev
+
+# Install standard ROS 2 packages
+RUN apt install -y \
+    ros-humble-ros2-control \
+    ros-humble-ros2-controllers \
+    ros-humble-xacro \
+    ros-humble-joint-state-publisher-gui
+
+# Install specialized packages (may need to be built from source)
+# RUN apt install -y \
+#     ros-humble-pca9685-hardware-interface \
+#     ros-humble-ackermann-steering-controller
 
 ##########################
 # for Jetson only - though doesn't kill x86
@@ -48,7 +62,4 @@ RUN apt install -y iproute2
 
 # don't want setuptools-scm - not sure why it is installed, but it causes problems
 RUN pip uninstall -y setuptools-scm
-
-# and need local access on jetson orin nano to control motors
-# RUN chmod 666 /dev/gpiochip0 /dev/gpiochip1 /dev/i2c-0 /dev/i2c-1 /dev/i2c-7
 
