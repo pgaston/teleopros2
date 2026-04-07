@@ -1,20 +1,3 @@
-testin' - currently too fast...
-
-sudo chmod 666 /dev/gpiochip0 /dev/gpiochip1 /dev/i2c-0 /dev/i2c-1 /dev/i2c-7
-cd ${ISAAC_ROS_WS}/src/isaac_ros_common && \
-  ./scripts/run_dev.sh
-
-
-cd src/...
-python PCA9685ServoESC.py
-
-
-
-
-
-
-
-
 # TeleOp on ROS2 using WebRTC 
 ## for ROS2 alone, or via the NVidia docker setup for Jetson (Orin) Nano/x86
 
